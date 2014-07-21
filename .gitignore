@@ -1,0 +1,5 @@
+*.suo
+*.pyc
+/key.txt
+/obj
+/Visual Studio 2013
