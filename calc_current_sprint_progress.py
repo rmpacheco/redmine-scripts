@@ -21,12 +21,16 @@ total_count=1
 total_sp = 0.0
 total_worked = 0.0
 issues = []
+
+# read our access key
+f = open('key.txt', 'r')
+accessKey = f.read()
+f.close()
+
 while nextOffset < total_count:
     #print "nextOffset = %d, total_count = %d" % (nextOffset, total_count)
     uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=214&limit=100&offset=' + str(nextOffset)
-    #uri = 'https://redmine1h.gdsx.com/redmine/time_entries.json?utf8=%E2%9C%93&f%5B%5D=spent_on&op%5Bspent_on%5D=lm&limit=100&offset=' + str(nextOffset)
-    # TODO: have the user input their user name and password)
-    r = requests.get(uri, auth=('roman', ''), verify=False)
+    r = requests.get(uri, params={'key': accessKey}, verify=False)
     data = json.loads(r.text)
     total_count = data["total_count"]
     setSize =len(data["issues"])
@@ -48,7 +52,7 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 10 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = date(2014,7,7)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+sprint_start_date = date(2014,7,21)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint
 bus_hours_per_sprint = 75  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine number of business hours transpired
@@ -82,7 +86,7 @@ for i in issues:
     devHoursForIssue = {237:0, 212:0, 128:0, 12:0, 15:0}
     total_hours_for_issue = 0
     # get time entries
-    r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id), auth=('roman', ''), verify=False)
+    r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id), params={'key': accessKey}, verify=False)
     data = json.loads(r.text)
     for x in xrange (0, data["total_count"]):
         entry = TimeEntry(data["time_entries"][x])
