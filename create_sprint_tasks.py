@@ -13,7 +13,7 @@ f.close()
 
 while nextOffset < total_count:
     uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=200&limit=100&offset=' + str(nextOffset)
-    # get the user access token from config file
+    
     r = requests.get(uri, params={'key': accessKey}, verify=False)
     data = json.loads(r.text)
     
@@ -21,10 +21,12 @@ while nextOffset < total_count:
     setSize =len(data["issues"])
     for x in xrange (0, setSize):
         issue = RmIssue(data["issues"][x])
+        
         # determine if the issue has any children
         issue_rqst = requests.get('https://redmine1h.gdsx.com/redmine/issues/' + str(issue.id) + '.json?include=children', params={'key': accessKey}, verify=False)
         issue_data = json.loads(issue_rqst.text)["issue"]
-        if "children" not in issue_data or len(issue_data["children"]) == 0:
+        # if the issue does not have children and its tracker is not misc, append to our list 
+        if ("children" not in issue_data or len(issue_data["children"]) == 0) and issue.tracker_id != 6: #6 = misc
             issues.append(issue)
     nextOffset += setSize
 
