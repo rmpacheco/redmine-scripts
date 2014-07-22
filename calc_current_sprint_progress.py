@@ -3,9 +3,7 @@ import json
 from redmine import *
 from dateutil import rrule
 from datetime import date, datetime, timedelta
-from colorama import init
-from colorama import Fore, Back, Style
-init() #init colorama
+
 
 def workdays(start, end, holidays=0, days_off=None):
     if days_off is None:

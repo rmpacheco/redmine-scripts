@@ -1,3 +1,7 @@
+from colorama import init
+from colorama import Fore, Back, Style
+init() #init colorama
+
 class Dev(object):
     def __init__(self, id, name):
         self.id = id
