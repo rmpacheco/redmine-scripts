@@ -3,12 +3,14 @@ from colorama import Fore, Back, Style
 init() #init colorama
 
 class Dev(object):
-    def __init__(self, id, name):
+    def __init__(self, id, name, daysOff=0):
         self.id = id
         self.name = name
         self.totalHoursWorked = 0
         self.totalSpWorked = 0
         self.adjustedTotalSpWorked = 0
+        self.daysOff = daysOff
+        self.projectedSp = 0
     def hourEfficiency(self):
         ratio = 0
         if self.totalHoursWorked > 0:

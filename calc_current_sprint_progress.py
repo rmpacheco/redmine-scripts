@@ -55,15 +55,26 @@ sprint_start_date = date(2014,7,21)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 bus_hours_per_sprint = 75  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine number of business hours transpired
 wd = workdays(sprint_start_date, date.today())
+current_time = (datetime.now()-timedelta(hours=8))
+current_time_as_float = min(current_time.hour + (current_time.minute/float(60)), 12)
+
 if wd < numBDaysInSprint:
-    bus_hours = wd * 8
+    bus_hours_by_end_of_wd = wd * 8  
 else:
-    bus_hours= bus_hours_per_sprint
+    bus_hours_by_end_of_wd= bus_hours_per_sprint
 
-targeted_perc_for_parity = (float(bus_hours) / bus_hours_per_sprint) * 100
-print "business hours as of end of today: %d" % (bus_hours)
+bus_hours_as_of_now = (((wd-1)*8) + (current_time_as_float) * .66)
+print "business hours as of now = %.2f" % bus_hours_as_of_now
+#print "current business hour of the day = %.2f" % (current_time_as_float * .66)
+targeted_perc_for_parity = (float(bus_hours_by_end_of_wd) / bus_hours_per_sprint) * 100
+hours_ahead_behind = (bus_hours_as_of_now / (perc_completed_to_date * .01)) - bus_hours_per_sprint
+#hours_from_completion = (bus_hours_by_end_of_wd / (perc_completed_to_date * .01)) - bus_hours_by_end_of_wd
+#print "business hours as of end of today: %d" % (bus_hours_by_end_of_wd)
 print "targed sprint progress for parity: %.2f%%" % (targeted_perc_for_parity)
-
+if hours_ahead_behind > 0:
+    print (Back.RED + Fore.WHITE + "total hours behind : %.2f" % (hours_ahead_behind) + Back.RESET + Fore.RESET)
+else:
+    print (BACK.GREEN + Fore.WHITE + "total hours ahead : %.2f" % (hours_ahead_behind*-1) + Back.RESET + Fore.RESET)
 story_points_behind =  0
 if (targeted_perc_for_parity > perc_completed_to_date):
     story_points_behind = (.01) * (targeted_perc_for_parity - perc_completed_to_date) * total_sp
@@ -97,14 +108,21 @@ for i in issues:
             devPercByHours = devHoursForIssue[keys[y]] / total_hours_for_issue
             devs[keys[y]].totalSpWorked += i.worked_sp * devPercByHours
             devs[keys[y]].adjustedTotalSpWorked += i.adjusted_worked_sp * devPercByHours
-            devs[keys[y]].totalHoursWorked+=devHoursForIssue[keys[y]]
+            devs[keys[y]].totalHoursWorked+=devHoursForIssue[keys[y]]          
     else:
         if i.worked_sp > 0:
             print (Back.YELLOW + Fore.BLACK + "Warning: Story %d claims progress but has 0 spent time recorded" % (i.id) + Back.RESET + Fore.RESET)          
-
+total_projected_sp = 0
 for dkey in devs.keys():
     dev = devs[dkey]
-    
+    dev.projectedSp = (dev.totalSpWorked/bus_hours_as_of_now-(8*dev.daysOff)) * bus_hours_per_sprint
+    total_projected_sp += dev.projectedSp
+    #dev.totalSpWorked+( dev.hourEfficiency() * (bus_hours_per_sprint-bus_hours_as_of_now))
     #print "%10s:\t%.2f hrs on stories,\t%.2f story points impacted,\tave. sp / hour: %.2f " % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.hourEfficiency())
-    print "%10s:\t%.2f hrs on stories,\t%.2f (%.2f) story points impacted,\tave. sp / hour: %.2f" % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.adjustedTotalSpWorked, dev.hourEfficiency())
-
+    print "%10s:\t%.2f hrs on stories,\t%.2f (%.2f) story points impacted,\t%.2f story points projected,\tave. sp / hour: %.2f" % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.adjustedTotalSpWorked, dev.projectedSp, dev.hourEfficiency())
+    
+projection_msg = "At the current pace, the team is projected to complete %.2f story points this sprint."
+if total_projected_sp >= total_sp:
+    print (Back.GREEN + Fore.WHITE + projection_msg % (total_projected_sp) + Back.RESET + Fore.RESET)
+else:
+    print (Back.RED + Fore.WHITE + projection_msg % (total_projected_sp) + Back.RESET + Fore.RESET)
