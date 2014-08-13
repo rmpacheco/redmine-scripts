@@ -50,7 +50,7 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 10 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = date(2014,7,21)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+sprint_start_date = date(2014,8,4)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint
 bus_hours_per_sprint = 75  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine number of business hours transpired
@@ -74,18 +74,18 @@ print "targed sprint progress for parity: %.2f%%" % (targeted_perc_for_parity)
 if hours_ahead_behind > 0:
     print (Back.RED + Fore.WHITE + "total hours behind : %.2f" % (hours_ahead_behind) + Back.RESET + Fore.RESET)
 else:
-    print (BACK.GREEN + Fore.WHITE + "total hours ahead : %.2f" % (hours_ahead_behind*-1) + Back.RESET + Fore.RESET)
+    print (Back.GREEN + Fore.WHITE + "total hours ahead : %.2f" % (hours_ahead_behind*-1) + Back.RESET + Fore.RESET)
 story_points_behind =  0
 if (targeted_perc_for_parity > perc_completed_to_date):
     story_points_behind = (.01) * (targeted_perc_for_parity - perc_completed_to_date) * total_sp
 print "story points to complete today for parity: %.2f" % (story_points_behind)
 
 time_entries = []
-bentley = Dev(237, "Bentley")
-isaac = Dev(212, "Isaac")
-gordon = Dev(128, "Gordon")
-ryan = Dev(12, "Ryan")
-roman = Dev(15, "Roman")
+bentley = Dev(237, "Bentley", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+isaac = Dev(212, "Isaac") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+gordon = Dev(128, "Gordon", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ryan = Dev(12, "Ryan", 5) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+roman = Dev(15, "Roman") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 devs = {237:bentley, 212:isaac, 128:gordon, 12:ryan, 15:roman}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
@@ -115,11 +115,13 @@ for i in issues:
 total_projected_sp = 0
 for dkey in devs.keys():
     dev = devs[dkey]
-    dev.projectedSp = (dev.totalSpWorked/bus_hours_as_of_now-(8*dev.daysOff)) * bus_hours_per_sprint
+    dev.busDayEfficiency = (dev.totalSpWorked/(bus_hours_as_of_now-(8*dev.daysOff)))
+    dev.projectedSp = (dev.busDayEfficiency * (bus_hours_per_sprint - bus_hours_as_of_now)) + dev.totalSpWorked
     total_projected_sp += dev.projectedSp
+    
     #dev.totalSpWorked+( dev.hourEfficiency() * (bus_hours_per_sprint-bus_hours_as_of_now))
     #print "%10s:\t%.2f hrs on stories,\t%.2f story points impacted,\tave. sp / hour: %.2f " % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.hourEfficiency())
-    print "%10s:\t%.2f hrs on stories,\t%.2f (%.2f) story points impacted,\t%.2f story points projected,\tave. sp / hour: %.2f" % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.adjustedTotalSpWorked, dev.projectedSp, dev.hourEfficiency())
+    print "%10s:\t%.2f hrs on stories,\t%.2f (%.2f) story points impacted,\t%.2f story points projected,\tave. sp / hr logged: %.2f,\tave. sp / bus. hr: %.2f (%.2f)" % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.adjustedTotalSpWorked, dev.projectedSp, dev.hourEfficiency(), dev.busDayEfficiency, dev.busDayEfficiency * 8)
     
 projection_msg = "At the current pace, the team is projected to complete %.2f story points this sprint."
 if total_projected_sp >= total_sp:

@@ -11,12 +11,13 @@ class Dev(object):
         self.adjustedTotalSpWorked = 0
         self.daysOff = daysOff
         self.projectedSp = 0
+        self.busDayEfficiency = 0
     def hourEfficiency(self):
         ratio = 0
         if self.totalHoursWorked > 0:
             ratio = float(self.totalSpWorked) / self.totalHoursWorked
         return ratio
-
+    
 class TimeEntry(object):
     def __init__(self, entry_json):
         self.json = entry_json
