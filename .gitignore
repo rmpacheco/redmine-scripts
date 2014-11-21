@@ -1,5 +1,7 @@
 *.suo
 *.pyc
+*.csv
+*.user
 /key.txt
 /obj
 /Visual Studio 2013

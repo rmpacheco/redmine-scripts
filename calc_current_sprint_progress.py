@@ -39,7 +39,7 @@ while nextOffset < total_count:
         # get story points estimate for the issue
         total_sp += issue.estimated_sp
         total_worked += issue.worked_sp
-        
+
         #print "story: %d, points: %d, done percentage: %f" % (issue.id, issue.estimated_sp, issue.done_ratio)
     nextOffset += setSize
 print "total story points to be worked: %d" % (total_sp)
@@ -50,8 +50,8 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 10 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = date(2014,8,4)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-# define number of business hours in this sprint
+sprint_start_date = datetime(2014,11,10)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# define number of business hours in this sprint_start_date
 bus_hours_per_sprint = 75  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine number of business hours transpired
 wd = workdays(sprint_start_date, date.today())
@@ -59,7 +59,7 @@ current_time = (datetime.now()-timedelta(hours=8))
 current_time_as_float = min(current_time.hour + (current_time.minute/float(60)), 12)
 
 if wd < numBDaysInSprint:
-    bus_hours_by_end_of_wd = wd * 8  
+    bus_hours_by_end_of_wd = wd * 8
 else:
     bus_hours_by_end_of_wd= bus_hours_per_sprint
 
@@ -74,7 +74,7 @@ print "targed sprint progress for parity: %.2f%%" % (targeted_perc_for_parity)
 if hours_ahead_behind > 0:
     print (Back.RED + Fore.WHITE + "total hours behind : %.2f" % (hours_ahead_behind) + Back.RESET + Fore.RESET)
 else:
-    print (Back.GREEN + Fore.WHITE + "total hours ahead : %.2f" % (hours_ahead_behind*-1) + Back.RESET + Fore.RESET)
+    print (Back.GREEN + Fore.BLACK+ "total hours ahead : %.2f" % (hours_ahead_behind*-1) + Back.RESET + Fore.RESET)
 story_points_behind =  0
 if (targeted_perc_for_parity > perc_completed_to_date):
     story_points_behind = (.01) * (targeted_perc_for_parity - perc_completed_to_date) * total_sp
@@ -82,10 +82,10 @@ print "story points to complete today for parity: %.2f" % (story_points_behind)
 
 time_entries = []
 bentley = Dev(237, "Bentley", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-isaac = Dev(212, "Isaac") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-gordon = Dev(128, "Gordon", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-ryan = Dev(12, "Ryan", 5) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-roman = Dev(15, "Roman") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+isaac = Dev(212, "Isaac", 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+gordon = Dev(128, "Gordon", 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ryan = Dev(12, "Ryan", 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+roman = Dev(15, "Roman", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 devs = {237:bentley, 212:isaac, 128:gordon, 12:ryan, 15:roman}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
@@ -99,8 +99,9 @@ for i in issues:
     data = json.loads(r.text)
     for x in xrange (0, data["total_count"]):
         entry = TimeEntry(data["time_entries"][x])
-        devHoursForIssue[entry.user_id] += entry.hours
-        total_hours_for_issue += entry.hours
+        if entry.spent_on >= sprint_start_date:
+            devHoursForIssue[entry.user_id] += entry.hours
+            total_hours_for_issue += entry.hours
     keys = devHoursForIssue.keys()
     #print devHoursForIssue
     if total_hours_for_issue > 0:
@@ -108,23 +109,24 @@ for i in issues:
             devPercByHours = devHoursForIssue[keys[y]] / total_hours_for_issue
             devs[keys[y]].totalSpWorked += i.worked_sp * devPercByHours
             devs[keys[y]].adjustedTotalSpWorked += i.adjusted_worked_sp * devPercByHours
-            devs[keys[y]].totalHoursWorked+=devHoursForIssue[keys[y]]          
+            devs[keys[y]].totalHoursWorked+=devHoursForIssue[keys[y]]
     else:
         if i.worked_sp > 0:
-            print (Back.YELLOW + Fore.BLACK + "Warning: Story %d claims progress but has 0 spent time recorded" % (i.id) + Back.RESET + Fore.RESET)          
+            print (Back.YELLOW + Fore.BLACK + "Warning: Story %d claims progress but has 0 spent time recorded" % (i.id) + Back.RESET + Fore.RESET)
 total_projected_sp = 0
 for dkey in devs.keys():
     dev = devs[dkey]
     dev.busDayEfficiency = (dev.totalSpWorked/(bus_hours_as_of_now-(8*dev.daysOff)))
+    dev.adjustedBusDayEfficiency = (dev.adjustedTotalSpWorked/(bus_hours_as_of_now-(8*dev.daysOff)))
     dev.projectedSp = (dev.busDayEfficiency * (bus_hours_per_sprint - bus_hours_as_of_now)) + dev.totalSpWorked
     total_projected_sp += dev.projectedSp
-    
+
     #dev.totalSpWorked+( dev.hourEfficiency() * (bus_hours_per_sprint-bus_hours_as_of_now))
     #print "%10s:\t%.2f hrs on stories,\t%.2f story points impacted,\tave. sp / hour: %.2f " % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.hourEfficiency())
-    print "%10s:\t%.2f hrs on stories,\t%.2f (%.2f) story points impacted,\t%.2f story points projected,\tave. sp / hr logged: %.2f,\tave. sp / bus. hr: %.2f (%.2f)" % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.adjustedTotalSpWorked, dev.projectedSp, dev.hourEfficiency(), dev.busDayEfficiency, dev.busDayEfficiency * 8)
-    
+    print "%10s:\t%.2f hrs on stories,\t%.2f (%.2f) story points impacted,\t%.2f story points projected,\tave. sp / hr logged: %.2f,\tave. sp / bus. hr: %.2f / %.2f (%.2f / %.2f)" % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.adjustedTotalSpWorked, dev.projectedSp, dev.hourEfficiency(), dev.busDayEfficiency, dev.busDayEfficiency * 8,  dev.adjustedBusDayEfficiency, dev.adjustedBusDayEfficiency * 8)
+
 projection_msg = "At the current pace, the team is projected to complete %.2f story points this sprint."
 if total_projected_sp >= total_sp:
-    print (Back.GREEN + Fore.WHITE + projection_msg % (total_projected_sp) + Back.RESET + Fore.RESET)
+    print (Back.GREEN + Fore.BLACK + projection_msg % (total_projected_sp) + Back.RESET + Fore.RESET)
 else:
     print (Back.RED + Fore.WHITE + projection_msg % (total_projected_sp) + Back.RESET + Fore.RESET)

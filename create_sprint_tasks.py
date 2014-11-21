@@ -52,7 +52,7 @@ for issue in issues:
         # create a QA task 
         task["priority_id"] = 3 # low
         task["subject"] = 'QA Test "' + issue.subject + "'"
-        task["estimated_hours"] = 1
+        task["estimated_hours"] = .5
         task["description"] = "Perform QA testing of story \"" + issue.subject + "\".\r\n\r\nThis QA testing should be performed on a test VM and not on a developer box. If time is still available in the sprint, create tasks under the parent story (#" + str(issue.id) + ") to correct any issues discovered"
         r = requests.post("https://redmine1h.gdsx.com/redmine/issues.json", data=json.dumps({"issue":task}), params={'key': accessKey}, verify=False, headers={'content-type': 'application/json'})
         if r.status_code != requests.codes.created:

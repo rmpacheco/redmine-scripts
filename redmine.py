@@ -1,5 +1,7 @@
 from colorama import init
 from colorama import Fore, Back, Style
+from datetime import datetime
+
 init() #init colorama
 
 class Dev(object):
@@ -12,6 +14,7 @@ class Dev(object):
         self.daysOff = daysOff
         self.projectedSp = 0
         self.busDayEfficiency = 0
+        self.adjustedBusDayEfficiency = 0
     def hourEfficiency(self):
         ratio = 0
         if self.totalHoursWorked > 0:
@@ -24,6 +27,7 @@ class TimeEntry(object):
         self.user_id = self.json["user"]["id"]
         self.user_name = self.json["user"]["name"]
         self.hours = float(self.json["hours"])
+        self.spent_on = datetime.strptime(self.json["spent_on"], '%Y-%m-%d')
 
 class RmIssue(object):
     def __init__(self, issue_json):
@@ -50,6 +54,6 @@ class RmIssue(object):
         if self.estimated_sp == 8:
             self.adjusted_worked_sp = self.worked_sp * 1.15
         if self.estimated_sp == 13:
-            self.adjusted_worked_sp = self.worked_sp * 1.35
+            self.adjusted_worked_sp = self.worked_sp * 1.25
         if self.estimated_sp == 20:
-            self.adjusted_worked_sp = self.worked_sp * 1.75
+            self.adjusted_worked_sp = self.worked_sp * 1.5
