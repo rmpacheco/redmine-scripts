@@ -23,7 +23,7 @@ f.close()
 
 # read our sprint data
 rows = []
-with open('C:\\Users\\roman\\Box Sync\\Team Sprint Performance Reports\\sprint_calc_data.csv', 'rb') as csvfile:
+with open('/Users/romanp/Box Sync/Team Sprint Performance Reports/sprint_calc_data.csv','rb') as csvfile:
     dataReader = csv.reader(csvfile, delimiter=',', quotechar='"')
     i = 0
     for row in dataReader:

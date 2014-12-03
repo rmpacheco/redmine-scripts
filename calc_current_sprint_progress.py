@@ -35,6 +35,8 @@ while nextOffset < total_count:
     for x in xrange (0, setSize):
         issue = RmIssue(data["issues"][x])
         issues.append(issue)
+        if issue.estimated_sp <= 0:
+            print (Back.YELLOW + Fore.BLACK + "Warning: Story %d doesn't have a story point estimate" % (self.id) + Back.RESET + Fore.RESET)
         done= issue.done_ratio
         # get story points estimate for the issue
         total_sp += issue.estimated_sp
@@ -50,27 +52,27 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 10 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = datetime(2014,11,10)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+sprint_start_date = datetime(2014,11,24)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint_start_date
-bus_hours_per_sprint = 75  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bus_hours_per_sprint = 59  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine number of business hours transpired
 wd = workdays(sprint_start_date, date.today())
 current_time = (datetime.now()-timedelta(hours=8))
 current_time_as_float = min(current_time.hour + (current_time.minute/float(60)), 12)
-
+bus_hours_per_day = (bus_hours_per_sprint-3) / (numBDaysInSprint-1)
 if wd < numBDaysInSprint:
-    bus_hours_by_end_of_wd = wd * 8
+    bus_hours_by_end_of_wd = wd * (bus_hours_per_day)
 else:
     bus_hours_by_end_of_wd= bus_hours_per_sprint
 
-bus_hours_as_of_now = (((wd-1)*8) + (current_time_as_float) * .66)
+bus_hours_as_of_now = (((wd-1)*bus_hours_per_day) + (current_time_as_float) * .66)
 print "business hours as of now = %.2f" % bus_hours_as_of_now
 #print "current business hour of the day = %.2f" % (current_time_as_float * .66)
 targeted_perc_for_parity = (float(bus_hours_by_end_of_wd) / bus_hours_per_sprint) * 100
 hours_ahead_behind = (bus_hours_as_of_now / (perc_completed_to_date * .01)) - bus_hours_per_sprint
 #hours_from_completion = (bus_hours_by_end_of_wd / (perc_completed_to_date * .01)) - bus_hours_by_end_of_wd
 #print "business hours as of end of today: %d" % (bus_hours_by_end_of_wd)
-print "targed sprint progress for parity: %.2f%%" % (targeted_perc_for_parity)
+print "target sprint progress for parity: %.2f%%" % (targeted_perc_for_parity)
 if hours_ahead_behind > 0:
     print (Back.RED + Fore.WHITE + "total hours behind : %.2f" % (hours_ahead_behind) + Back.RESET + Fore.RESET)
 else:
@@ -81,10 +83,10 @@ if (targeted_perc_for_parity > perc_completed_to_date):
 print "story points to complete today for parity: %.2f" % (story_points_behind)
 
 time_entries = []
-bentley = Dev(237, "Bentley", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-isaac = Dev(212, "Isaac", 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bentley = Dev(237, "Bentley", 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+isaac = Dev(212, "Isaac", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 gordon = Dev(128, "Gordon", 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-ryan = Dev(12, "Ryan", 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ryan = Dev(12, "Ryan", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 roman = Dev(15, "Roman", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 devs = {237:bentley, 212:isaac, 128:gordon, 12:ryan, 15:roman}

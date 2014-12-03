@@ -40,6 +40,10 @@ class RmIssue(object):
         self.estimated_sp = 0
         self.subject = self.json["subject"]
         self.description = self.json["description"]
+        if "parent" in self.json:
+            self.parent_id = self.json["parent"]["id"]
+        else:
+            self.parent_id = 0
         self.has_children = None
         for i in xrange(0, len(custom_fields)):
             cf = custom_fields[i]
@@ -47,8 +51,7 @@ class RmIssue(object):
                 if cf["value"] != '':
                     self.estimated_sp = int(cf["value"])
                     break
-                else:
-                    print (Back.YELLOW + Fore.BLACK + "Warning: Story %d doesn't have a story point estimate" % (self.id) + Back.RESET + Fore.RESET)
+               
         self.worked_sp = (self.estimated_sp * (self.done_ratio / float(100)))
         self.adjusted_worked_sp = self.worked_sp
         if self.estimated_sp == 8:
