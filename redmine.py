@@ -32,12 +32,21 @@ class TimeEntry(object):
 class RmIssue(object):
     def __init__(self, issue_json):
         self.json = issue_json
-        
+
         self.id = self.json["id"]
+
+        self.estimated_sp = 0
+
+        # self.spent_hours = 0
+        # if "spent_hours" in self.json:
+        #     self.spent_hours = self.json["spent_hours"]
+
+        self.estimated_hours = 0
+        if "estimated_hours" in self.json:
+            self.estimated_hours = self.json["estimated_hours"]
         self.done_ratio = self.json["done_ratio"]
         custom_fields = self.json["custom_fields"]
         self.tracker_id = self.json["tracker"]["id"]
-        self.estimated_sp = 0
         self.subject = self.json["subject"]
         self.description = self.json["description"]
         if "parent" in self.json:
@@ -45,18 +54,20 @@ class RmIssue(object):
         else:
             self.parent_id = 0
         self.has_children = None
-        for i in xrange(0, len(custom_fields)):
-            cf = custom_fields[i]
-            if cf["name"] == "Story Points":
-                if cf["value"] != '':
-                    self.estimated_sp = int(cf["value"])
-                    break
-               
+        if "story_points" in self.json:
+            self.estimated_sp = float(self.json["story_points"])
+        # for i in xrange(0, len(custom_fields)):
+        #     cf = custom_fields[i]
+        #     if cf["name"] == "Story Points":
+        #         if cf["value"] != '':
+        #             self.estimated_sp = int(cf["value"])
+        #             break
+
         self.worked_sp = (self.estimated_sp * (self.done_ratio / float(100)))
         self.adjusted_worked_sp = self.worked_sp
         if self.estimated_sp == 8:
             self.adjusted_worked_sp = self.worked_sp * 1.15
         if self.estimated_sp == 13:
             self.adjusted_worked_sp = self.worked_sp * 1.25
-        if self.estimated_sp == 20:
+        if self.estimated_sp >= 20:
             self.adjusted_worked_sp = self.worked_sp * 1.5
