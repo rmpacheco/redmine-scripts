@@ -52,7 +52,7 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 10 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = datetime(2014,12,8)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+sprint_start_date = datetime(2015,1,5)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint_start_date
 bus_hours_per_sprint = 75  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine number of business hours transpired
@@ -86,14 +86,14 @@ if (targeted_perc_for_parity > perc_completed_to_date):
 print "story points to complete today for parity: %.2f" % (story_points_behind)
 
 time_entries = []
-bentley = Dev(237, "Bentley", 4) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bentley = Dev(237, "Bentley") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 isaac = Dev(212, "Isaac") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-gordon = Dev(128, "Gordon", 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+gordon = Dev(128, "Gordon", 5) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ryan = Dev(12, "Ryan") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-roman = Dev(15, "Roman", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+roman = Dev(15, "Roman") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if wd == numBDaysInSprint:
     ryan.adjustedTotalSpWorked = 2
-    gordon.adjustedTotalSpWorked = 1
+    gordon.adjustedTotalSpWorked = 0
 devs = {237:bentley, 212:isaac, 128:gordon, 12:ryan, 15:roman}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
 #devSpForSprint = {237:0, 212:0, 128:0, 12:0, 15:0}
