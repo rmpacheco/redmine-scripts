@@ -93,7 +93,8 @@ ryan = Dev(12, "Ryan") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 roman = Dev(15, "Roman") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if wd == numBDaysInSprint:
     ryan.adjustedTotalSpWorked = 2
-    gordon.adjustedTotalSpWorked = 0
+    gordon.adjustedTotalSpWorked = 1
+    isaac.adjustedTotalSpWorked = 3
 devs = {237:bentley, 212:isaac, 128:gordon, 12:ryan, 15:roman}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
 #devSpForSprint = {237:0, 212:0, 128:0, 12:0, 15:0}

@@ -5,7 +5,7 @@ import requests
 
 from redmine import *
 
-sp_per_hour_ratio = .54  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+sp_per_hour_ratio = .385  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 if len(sys.argv) <= 1:
     print "Sprint ID required as command line arg"
