@@ -36,7 +36,7 @@ while nextOffset < total_count:
         issue = RmIssue(data["issues"][x])
         issues.append(issue)
         if issue.estimated_sp <= 0:
-            print (Back.YELLOW + Fore.BLACK + "Warning: Story %d doesn't have a story point estimate" % (self.id) + Back.RESET + Fore.RESET)
+            print (Back.YELLOW + Fore.BLACK + "Warning: Story %d doesn't have a story point estimate" % (issue.id) + Back.RESET + Fore.RESET)
         done= issue.done_ratio
         # get story points estimate for the issue
         total_sp += issue.estimated_sp
@@ -52,7 +52,7 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 10 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = datetime(2015,1,5)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+sprint_start_date = datetime(2015,1,19)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint_start_date
 bus_hours_per_sprint = 75  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine number of business hours transpired
@@ -88,13 +88,13 @@ print "story points to complete today for parity: %.2f" % (story_points_behind)
 time_entries = []
 bentley = Dev(237, "Bentley") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 isaac = Dev(212, "Isaac") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-gordon = Dev(128, "Gordon", 5) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-ryan = Dev(12, "Ryan") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+gordon = Dev(128, "Gordon") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ryan = Dev(12, "Ryan", 1) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 roman = Dev(15, "Roman") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if wd == numBDaysInSprint:
-    ryan.adjustedTotalSpWorked = 2
-    gordon.adjustedTotalSpWorked = 1
-    isaac.adjustedTotalSpWorked = 3
+    ryan.adjustedTotalSpWorked = 1
+    gordon.adjustedTotalSpWorked = 2
+    isaac.adjustedTotalSpWorked = 0
 devs = {237:bentley, 212:isaac, 128:gordon, 12:ryan, 15:roman}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
 #devSpForSprint = {237:0, 212:0, 128:0, 12:0, 15:0}
@@ -120,7 +120,7 @@ for i in issues:
             devs[keys[y]].totalHoursWorked+=devHoursForIssue[keys[y]]
     else:
         if i.worked_sp > 0:
-            print (Back.YELLOW + Fore.BLACK + "Warning: Story %d claims progress but has 0 spent time recorded" % (i.id) + Back.RESET + Fore.RESET)
+            print Back.YELLOW + Fore.BLACK + "Warning: Story %d claims progress but has 0 spent time recorded" % (i.id) + Back.RESET + Fore.RESET
 total_projected_sp = 0
 for dkey in devs.keys():
     dev = devs[dkey]
