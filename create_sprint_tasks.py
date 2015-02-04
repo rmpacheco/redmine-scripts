@@ -26,7 +26,7 @@ while nextOffset < total_count:
         issue_rqst = requests.get('https://redmine1h.gdsx.com/redmine/issues/' + str(issue.id) + '.json?include=children', params={'key': accessKey}, verify=False)
         issue_data = json.loads(issue_rqst.text)["issue"]
         # if the issue does not have children and its tracker is not misc, append to our list 
-        if ("children" not in issue_data or len(issue_data["children"]) == 0) and issue.tracker_id != 6: #6 = misc
+        if ("children" not in issue_data or len(issue_data["children"]) == 0) : #6 = misc
             issues.append(issue)
     nextOffset += setSize
 

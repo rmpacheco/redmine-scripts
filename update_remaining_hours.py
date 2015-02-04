@@ -21,7 +21,7 @@ while nextOffset < total_count:
     total_count = data["total_count"]
     setSize = len(data["issues"])
     for x in xrange(0, setSize):
-
+        print "Issue %d" % (data["issues"][x]["id"])
         issue = RmIssue(data["issues"][x])
         if issue.estimated_hours > 0:
             total_hours_for_issue = 0
