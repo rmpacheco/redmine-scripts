@@ -38,8 +38,10 @@ for issue in issues:
     task["status_id"] = 1 # new
     task["priority_id"] = issue.json["priority"]["id"]
     task["subject"] = issue.subject
+    
     task["description"] = issue.description
-    task["category_id"] = issue.json["category"]["id"]
+    if "category" in issue.json:
+        task["category_id"] = issue.json["category"]["id"]
     task["fixed_version_id"] = issue.json["fixed_version"]["id"]
     task["parent_issue_id"] = issue.id
     r = requests.post("https://redmine1h.gdsx.com/redmine/issues.json", data=json.dumps({"issue":task}), params={'key': accessKey}, verify=False, headers={'content-type': 'application/json'})

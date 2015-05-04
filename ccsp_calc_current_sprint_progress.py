@@ -1,8 +1,10 @@
 import requests
+import pytz
 import json
 from redmine import *
-from dateutil import rrule
+from dateutil import rrule, tz
 from datetime import date, datetime, timedelta
+import time
 import operator
 
 def workdays(start, end, holidays=0, days_off=None):
@@ -13,6 +15,12 @@ def workdays(start, end, holidays=0, days_off=None):
                        byweekday=workdays)
     return days.count( ) - holidays
 
+def addDevStatsRow(title, devs, attr):
+    row = title + (" " * (14-len(title))) + "|"
+    for dkey in devs.keys():
+        dev = devs[dkey]
+        row += ("%15s" % ("%.2f" % getattr(dev,attr)))
+    return row
 
 nextOffset = 0
 total_count=1
@@ -27,7 +35,7 @@ f.close()
 remaining_sp = {}
 while nextOffset < total_count:
     #print "nextOffset = %d, total_count = %d" % (nextOffset, total_count)
-    uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=214&limit=100&offset=' + str(nextOffset)
+    uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=200&limit=100&offset=' + str(nextOffset)
     r = requests.get(uri, params={'key': accessKey}, verify=False)
     data = json.loads(r.text)
     total_count = data["total_count"]
@@ -41,7 +49,7 @@ while nextOffset < total_count:
         # get story points estimate for the issue
         total_sp += issue.estimated_sp
         total_worked += issue.worked_sp
-        remaining_sp[str(issue.id) + " - " + issue.subject] = issue.estimated_sp-issue.worked_sp
+        remaining_sp[str(issue.id) + " - " + issue.subject + ": " + str(issue.estimated_hours - (issue.estimated_hours * (.01 * issue.done_ratio)))] = issue.estimated_sp-issue.worked_sp
 
         #print "story: %d, points: %d, done percentage: %f" % (issue.id, issue.estimated_sp, issue.done_ratio)
     nextOffset += setSize
@@ -53,14 +61,15 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 9 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = datetime(2015,2,17)  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+sprint_start_date = datetime(2015,4,27).replace(tzinfo=tz.gettz('America/Chicago'))  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint_start_date
-bus_hours_per_sprint = 67  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bus_hours_per_sprint = 72  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+halfDay = (bus_hours_per_sprint/numBDaysInSprint)/2
 # determine number of business hours transpired
-wd = workdays(sprint_start_date, date.today())
+wd = workdays(sprint_start_date, datetime.now(pytz.utc))
 current_time = (datetime.now()-timedelta(hours=8))
 current_time_as_float = min(current_time.hour + (current_time.minute/float(60)), 12)
-bus_hours_per_day = (bus_hours_per_sprint-3) / (numBDaysInSprint-1)
+bus_hours_per_day = (bus_hours_per_sprint) / (numBDaysInSprint)
 if wd < numBDaysInSprint:
     bus_hours_by_end_of_wd = wd * (bus_hours_per_day)
 else:
@@ -87,15 +96,15 @@ if (targeted_perc_for_parity > perc_completed_to_date):
 print "story points to complete today for parity: %.2f" % (story_points_behind)
 
 time_entries = []
-bentley = Dev(237, "Bentley") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-isaac = Dev(212, "Isaac") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-gordon = Dev(128, "Gordon") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-ryan = Dev(12, "Ryan") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bentley = Dev(237, "Bentley",0,0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+isaac = Dev(212, "Isaac", 0,0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+gordon = Dev(128, "Gordon",0,0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ryan = Dev(12, "Ryan",0,0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 roman = Dev(15, "Roman") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-mosley = Dev(194, "Mosley") #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+mosley = Dev(194, "Mosley", 0,0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if wd == numBDaysInSprint:
-    ryan.adjustedTotalSpWorked = 3
-    gordon.adjustedTotalSpWorked = 2
+    ryan.adjustedTotalSpWorked = 2.5
+    gordon.adjustedTotalSpWorked = 0
     
 devs = {237:bentley, 212:isaac, 128:gordon, 12:ryan, 194:mosley}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
@@ -109,8 +118,14 @@ for i in issues:
     data = json.loads(r.text)
     for x in xrange (0, data["total_count"]):
         entry = TimeEntry(data["time_entries"][x])
-        if entry.spent_on >= sprint_start_date:
-            devHoursForIssue[entry.user_id] += entry.hours
+        if entry.user_id in devs:
+            theDev = devs[entry.user_id]
+            if theDev.latestTimeEntryThisSprint is None or entry.updated_on >  theDev.latestTimeEntryThisSprint:
+                theDev.latestTimeEntryThisSprint = entry.updated_on
+                #theDev.latestTimeEntryThisSprint = theDev.latestTimeEntryThisSprint.replace(tzinfo = tz.gettz('UTC'))
+        if entry.updated_on >= sprint_start_date:
+            if entry.user_id in devHoursForIssue:
+                devHoursForIssue[entry.user_id] += entry.hours
             total_hours_for_issue += entry.hours
     keys = devHoursForIssue.keys()
     #print devHoursForIssue
@@ -126,8 +141,8 @@ for i in issues:
 total_projected_sp = 0
 
 # list the header
-#                       Gordon Ryan    Isaac   Bentley
-#                        ------  ----    -----   -------
+#                       Gordon  Ryan    Isaac   Bentley
+#                       ------  ----    -----   -------
 header = " " * 15
 underline = " " * 15
 for dkey in devs.keys():
@@ -140,9 +155,14 @@ for dkey in devs.keys():
     if dev == mosley:
         dayFactor = 4
     underline += ("%15s") % ('-' * len(dev.name))
-    dev.busDayEfficiency = (dev.totalSpWorked/(bus_hours_as_of_now-(dayFactor*dev.daysOff)))
-    dev.adjustedBusDayEfficiency = (dev.adjustedTotalSpWorked/(bus_hours_as_of_now-(dayFactor*dev.daysOff)))
-    dev.projectedSp = (dev.busDayEfficiency * (bus_hours_per_sprint - bus_hours_as_of_now)) + dev.totalSpWorked
+    dev.busDayEfficiency = (dev.totalSpWorked/(bus_hours_as_of_now-(8*dev.daysOff)))
+    dev.adjustedBusDayEfficiency = (dev.adjustedTotalSpWorked/(bus_hours_as_of_now-(8*dev.daysOff)))
+    # this is broken...redo in hours maybe?
+    hoursRemaining = bus_hours_per_sprint - bus_hours_as_of_now - (dayFactor * dev.remainingDaysOff)
+    #print (dev.name + " hrs remaining: %.2f" % hoursRemaining)
+    # psp = dev.totalSpWorked + (bhEff * hoursRemaining)
+    dev.projectedSp = dev.totalSpWorked + (dev.busDayEfficiency * hoursRemaining)
+    #dev.projectedSp = (dev.busDayEfficiency * (bus_hours_per_sprint - bus_hours_as_of_now - (dayFactor*dev.remainingDaysOff))) + dev.totalSpWorked
     total_projected_sp += dev.projectedSp
 
 projection_msg = "At the current pace, the team is projected to complete %.2f story points this sprint."
@@ -150,21 +170,7 @@ if total_projected_sp >= total_sp:
     print (Back.GREEN + Fore.BLACK + projection_msg % (total_projected_sp) + Back.RESET + Fore.RESET)
 else:
     print (Back.RED + Fore.WHITE + projection_msg % (total_projected_sp) + Back.RESET + Fore.RESET)
-
-rawImpact = "impact (raw)  |"
-for dkey in devs.keys():
-    dev = devs[dkey]
-    rawImpact += ("%15s" % ("%.2f" % dev.totalSpWorked))
-
-adjImpact = "impact (adj)  |"
-for dkey in devs.keys():
-    dev = devs[dkey]
-    adjImpact += ("%15s" % ("%.2f" % dev.adjustedTotalSpWorked))
-
-projectedImpact = "impact (proj) |"
-for dkey in devs.keys():
-    dev = devs[dkey]
-    projectedImpact += ("%15s" % ("%.2f" % dev.projectedSp))    
+print ""
 
 bdEfficiencyRaw = "bd eff (raw)  |"
 for dkey in devs.keys():
@@ -172,7 +178,7 @@ for dkey in devs.keys():
     dayFactor = 8
     if dev == mosley:
         dayFactor = 4
-    bdEfficiencyRaw += ("%15s" % ("%.2f" % (dev.busDayEfficiency * dayFactor)))    
+    bdEfficiencyRaw += ("%15s" % ("%.2f" % (dev.busDayEfficiency * dayFactor)))
 
 bdEfficiencyAdj = "bd eff (adj)  |"
 for dkey in devs.keys():
@@ -180,30 +186,30 @@ for dkey in devs.keys():
     dayFactor = 8
     if dev == mosley:
         dayFactor = 4
-    bdEfficiencyAdj += ("%15s" % ("%.2f" % (dev.adjustedBusDayEfficiency * dayFactor))) 
+    bdEfficiencyAdj += ("%15s" % ("%.2f" % (dev.adjustedBusDayEfficiency * dayFactor)))
+
+
+latestTimeEntries = "last time log |"
+centraltz = tz.gettz('America/Chicago')
+for dkey in devs.keys():
+    dev = devs[dkey]
+    #latestTimeEntries += ("%15s" % ("%s" % getattr(dev,"latestTimeEntryThisSprint")))
+    latestTimeEntries += ("%15s" % ("%s" % dev.latestTimeEntryThisSprint.astimezone(centraltz).strftime("%a,%H:%M")))
 
 print header
 print underline
-print rawImpact
-print adjImpact
-print projectedImpact
+print latestTimeEntries
+print addDevStatsRow("hours logged", devs, "totalHoursWorked")
+print addDevStatsRow("impact (raw)", devs, "totalSpWorked")
+print addDevStatsRow("impact (adj)", devs, "adjustedTotalSpWorked")
+print addDevStatsRow("impact (proj)", devs, "projectedSp")
 print bdEfficiencyRaw
 print bdEfficiencyAdj
 
 # Print out information about each story, sorted from furthest behind to least behind
 sorted_remaining = sorted(remaining_sp.items(), key=operator.itemgetter(1), reverse=True)
+print ("") 
 for pair in sorted_remaining:
-    print ("%.2f\t%s" % (pair[1], pair[0]))
-
-
-# for dkey in devs.keys():
-#     dev = devs[dkey]
-#     dev.busDayEfficiency = (dev.totalSpWorked/(bus_hours_as_of_now-(8*dev.daysOff)))
-#     dev.adjustedBusDayEfficiency = (dev.adjustedTotalSpWorked/(bus_hours_as_of_now-(8*dev.daysOff)))
-#     dev.projectedSp = (dev.busDayEfficiency * (bus_hours_per_sprint - bus_hours_as_of_now)) + dev.totalSpWorked
-#     total_projected_sp += dev.projectedSp
-
-    #dev.totalSpWorked+( dev.hourEfficiency() * (bus_hours_per_sprint-bus_hours_as_of_now))
-    #print "%10s:\t%.2f hrs on stories,\t%.2f story points impacted,\tave. sp / hour: %.2f " % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.hourEfficiency())
-    # print "%10s:\t%.2f hrs on stories,\t%.2f (%.2f) story points impacted,\t%.2f story points projected,\tave. sp / hr logged: %.2f,\tave. sp / bus. hr: %.2f / %.2f (%.2f / %.2f)" % (dev.name, dev.totalHoursWorked, dev.totalSpWorked, dev.adjustedTotalSpWorked, dev.projectedSp, dev.hourEfficiency(), dev.busDayEfficiency, dev.busDayEfficiency * 8,  dev.adjustedBusDayEfficiency, dev.adjustedBusDayEfficiency * 8)
+    if pair[1] > 0:
+        print ("%.2f\t%s" % (pair[1], pair[0]))
 
