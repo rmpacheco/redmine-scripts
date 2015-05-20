@@ -21,7 +21,7 @@ f = open('key.txt', 'r')
 accessKey = f.read()
 f.close()
 
-versions = {229, 230, 234}
+versions = {235}
 
 
 
