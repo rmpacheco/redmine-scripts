@@ -7,6 +7,8 @@ from datetime import date, datetime, timedelta
 import sys
 import getopt
 
+requests.packages.urllib3.disable_warnings()
+
 def workdays(start, end, holidays=0, days_off=None):
     if days_off is None:
         days_off = 5, 6         # default to: saturdays and sundays
@@ -14,20 +16,23 @@ def workdays(start, end, holidays=0, days_off=None):
     days = rrule.rrule(rrule.DAILY, dtstart=start, until=end,
                        byweekday=workdays)
     return days.count( ) - holidays
-print "hello"
 
-# read our access key
-f = open('key.txt', 'r')
-accessKey = f.read()
-f.close()
+if len(sys.argv) <= 1:
+    print "Sprint ID required as command line arg"
+else:
 
-versions = {235}
+    versionId = int(sys.argv[1])
 
+    # read our access key
+    f = open('key.txt', 'r')
+    accessKey = f.read()
+    f.close()
 
+    #versions = {256}
 
-# aggregate all sprint data by dev
+    # aggregate all sprint data by dev
 
-for versionId in versions:
+    #for versionId in versions:
     bugCount = 0
     featureCount = 0
     archCount = 0
@@ -60,7 +65,7 @@ for versionId in versions:
                 featureCount+=1
                 featurePoints+= issue.worked_sp
             else:
-                print "\t%i: %.2f" % (issue.id, issue.worked_sp)
+                #print "\t%i: %.2f" % (issue.id, issue.worked_sp)
                 bugCount+=1
                 bugPoints+=issue.worked_sp
             # el:

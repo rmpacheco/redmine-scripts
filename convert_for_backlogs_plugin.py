@@ -6,7 +6,7 @@ nextOffset = 0
 total_count = 1
 issues = []
 
-# read our access key
+# read my access key
 f = open('key.txt', 'r')
 accessKey = f.read()
 f.close()

@@ -38,7 +38,7 @@ for issue in issues:
     task["status_id"] = 1 # new
     task["priority_id"] = issue.json["priority"]["id"]
     task["subject"] = issue.subject
-    
+    task["estimated_hours"] = round(issue.estimated_sp / .385, 0)
     task["description"] = issue.description
     if "category" in issue.json:
         task["category_id"] = issue.json["category"]["id"]

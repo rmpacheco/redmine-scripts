@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 import requests
 import pytz
 import json
@@ -7,6 +8,7 @@ from datetime import date, datetime, timedelta
 import time
 import operator
 
+requests.packages.urllib3.disable_warnings()
 
 def workdays(start, end, holidays=0, days_off=None):
     if days_off is None:
@@ -79,10 +81,10 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 9  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = datetime(2015, 5, 11).replace(
+sprint_start_date = datetime(2015, 7, 20).replace(
     tzinfo=tz.gettz('America/Chicago'))  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint_start_date
-bus_hours_per_sprint = 72  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bus_hours_per_sprint = 72 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 halfDay = (bus_hours_per_sprint / numBDaysInSprint) / 2
 # determine number of business hours transpired
 wd = workdays(sprint_start_date, datetime.now(pytz.utc))
@@ -111,19 +113,19 @@ bentley = Dev(237, "Bentley", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 isaac = Dev(212, "Isaac", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 gordon = Dev(128, "Gordon", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ryan = Dev(12, "Ryan", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-roman = Dev(15, "Roman")  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-mosley = Dev(194, "Mosley", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+roman = Dev(15, "Roman", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+mosley = Dev(194, "Mosley", 0, 3)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if wd == numBDaysInSprint:
     ryan.adjustedTotalSpWorked = 2.5
     gordon.adjustedTotalSpWorked = 0
 
-devs = {237: bentley, 212: isaac, 128: gordon, 12: ryan, 194: mosley}
+devs = {237: bentley, 212: isaac, 128: gordon, 12: ryan, 194: mosley, 15: roman}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
 #devSpForSprint = {237:0, 212:0, 128:0, 12:0, 15:0}
 for i in issues:
     #print "story %d" % i.id
 
-    devHoursForIssue = {237: 0, 212: 0, 128: 0, 12: 0, 194: 0}
+    devHoursForIssue = {237: 0, 212: 0, 128: 0, 12: 0, 194: 0, 15:0}
     total_hours_for_issue = 0
     # get time entries
     r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id),
@@ -227,6 +229,8 @@ for dkey in devs.keys():
     if dev.latestTimeEntryThisSprint is not None:
     #latestTimeEntries += ("%15s" % ("%s" % getattr(dev,"latestTimeEntryThisSprint")))
         latestTimeEntries += ("%15s" % ("%s" % dev.latestTimeEntryThisSprint.astimezone(centraltz).strftime("%a,%H:%M")))
+    else:
+        latestTimeEntries += ("%15s" % "")
 
 print header
 print underline
