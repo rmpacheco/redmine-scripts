@@ -4,6 +4,8 @@ import json
 import math
 from redmine import *
 
+requests.packages.urllib3.disable_warnings()
+
 nextOffset = 0
 total_count = 1
 issues = []
