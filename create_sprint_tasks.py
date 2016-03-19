@@ -8,13 +8,14 @@ issues = []
 
 # read our access key
 f = open('key.txt', 'r')
-accessKey = f.read()
+accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714"#f.read()
 f.close()
 
 while nextOffset < total_count:
     uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=200&limit=100&offset=' + str(nextOffset)
     
-    r = requests.get(uri, params={'key': accessKey}, verify=False)
+    r = requests.get(uri, params={'key': "045c0bc5c92989dea17ba6bb51a1f08986c14714"}, verify=False)
+    #print r.text
     data = json.loads(r.text)
     
     total_count = data["total_count"]
@@ -23,8 +24,10 @@ while nextOffset < total_count:
         issue = RmIssue(data["issues"][x])
         
         # determine if the issue has any children
-        issue_rqst = requests.get('https://redmine1h.gdsx.com/redmine/issues/' + str(issue.id) + '.json?include=children', params={'key': accessKey}, verify=False)
+        issue_rqst = requests.get('https://redmine1h.gdsx.com/redmine/issues/' + str(issue.id) + '.json?include=children', params={'key': "045c0bc5c92989dea17ba6bb51a1f08986c14714"}, verify=False)
+
         issue_data = json.loads(issue_rqst.text)["issue"]
+       
         # if the issue does not have children and its tracker is not misc, append to our list 
         if ("children" not in issue_data or len(issue_data["children"]) == 0) : #6 = misc
             issues.append(issue)
@@ -44,7 +47,7 @@ for issue in issues:
         task["category_id"] = issue.json["category"]["id"]
     task["fixed_version_id"] = issue.json["fixed_version"]["id"]
     task["parent_issue_id"] = issue.id
-    r = requests.post("https://redmine1h.gdsx.com/redmine/issues.json", data=json.dumps({"issue":task}), params={'key': accessKey}, verify=False, headers={'content-type': 'application/json'})
+    r = requests.post("https://redmine1h.gdsx.com/redmine/issues.json", data=json.dumps({"issue":task}), params={'key': "045c0bc5c92989dea17ba6bb51a1f08986c14714"}, verify=False, headers={'content-type': 'application/json'})
     if r.status_code != requests.codes.created:
         print r
         continue
