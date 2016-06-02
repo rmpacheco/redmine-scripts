@@ -28,8 +28,8 @@ while nextOffset < total_count:
 
         issue_data = json.loads(issue_rqst.text)["issue"]
        
-        # if the issue does not have children and its tracker is not misc, append to our list 
-        if ("children" not in issue_data or len(issue_data["children"]) == 0) : #6 = misc
+        # if the issue does not have children append to our list 
+        if ("children" not in issue_data or len(issue_data["children"]) == 0) : 
             issues.append(issue)
     nextOffset += setSize
 
@@ -41,7 +41,9 @@ for issue in issues:
     task["status_id"] = 1 # new
     task["priority_id"] = issue.json["priority"]["id"]
     task["subject"] = issue.subject
-    task["estimated_hours"] = round(issue.estimated_sp / .385, 0)
+    #if issue.estimated_sp > 0:
+    #	task["estimated_hours"] = round(issue.estimated_sp / .385, 0)
+    #task["estimated_hours"] = 0.0
     task["description"] = issue.description
     if "category" in issue.json:
         task["category_id"] = issue.json["category"]["id"]
@@ -57,7 +59,7 @@ for issue in issues:
         # create a QA task 
         task["priority_id"] = 3 # low
         task["subject"] = 'QA Test "' + issue.subject + "'"
-        task["estimated_hours"] = .5
+        #task["estimated_hours"] = 0.0 #.5
         task["description"] = "Perform QA testing of story \"" + issue.subject + "\".\r\n\r\nThis QA testing should be performed on a test VM and not on a developer box. If time is still available in the sprint, create tasks under the parent story (#" + str(issue.id) + ") to correct any issues discovered"
         r = requests.post("https://redmine1h.gdsx.com/redmine/issues.json", data=json.dumps({"issue":task}), params={'key': accessKey}, verify=False, headers={'content-type': 'application/json'})
         if r.status_code != requests.codes.created:

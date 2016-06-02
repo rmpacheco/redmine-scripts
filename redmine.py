@@ -38,6 +38,7 @@ class RmIssue(object):
     def __init__(self, issue_json):
         self.json = issue_json
         self.status = 0
+        self.status_name=""
         self.id = self.json["id"]
 
         self.estimated_sp = 0
@@ -83,3 +84,4 @@ class RmIssue(object):
 
         if "status" in self.json:
             self.status = self.json["status"]["id"]
+            self.status_name = self.json["status"]["name"]
