@@ -96,10 +96,10 @@ print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 numBDaysInSprint = 9  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = datetime(2016, 5, 23).replace(
+sprint_start_date = datetime(2016, 6, 20).replace(
     tzinfo=tz.gettz('America/Chicago'))  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint_start_date
-bus_hours_per_sprint = 64 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bus_hours_per_sprint = 72 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 halfDay = (bus_hours_per_sprint / numBDaysInSprint) / 2
 # determine number of business hours transpired
 now = datetime.now(pytz.utc)
@@ -132,23 +132,24 @@ print "story points to complete today for parity: %.2f" % (story_points_behind)
 
 time_entries = []
 #levi = Dev(4, "Levi", 0, 0)
-bentley = Dev(237, "Bentley", 1, 0 )  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-isaac = Dev(212, "Isaac", 1, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bentley = Dev(237, "Bentley", 0, 1 )  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+isaac = Dev(212, "Isaac", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #gordon = Dev(128, "Gordon", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ryan = Dev(12, "Ryan", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 roman = Dev(15, "Roman", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+devanand = Dev(331, "Devanand", 0, 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #mosley = Dev(194, "Mosley", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if wd >= numBDaysInSprint:
     ryan.adjustedTotalSpWorked = 0 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-devs = {237: bentley, 212: isaac, 12: ryan, 15: roman}
+devs = {237: bentley, 212: isaac, 12: ryan, 15: roman, 331: devanand}
 spikes = {}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
 #devSpForSprint = {237:0, 212:0, 128:0, 12:0, 15:0}
 for i in issues:
     #print "story %d" % i.id
 
-    devHoursForIssue = {237: 0, 212: 0, 12: 0, 15: 0}
+    devHoursForIssue = {237: 0, 212: 0, 12: 0, 15: 0, 331: 0}
     total_hours_for_issue = 0
     # get time entries
     r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id),
@@ -252,7 +253,7 @@ print ""
 
 for i in spikes.keys():
     
-    devHoursForIssue = {237: 0, 212: 0, 12: 0, 15: 0}
+    devHoursForIssue = {237: 0, 212: 0, 12: 0, 15: 0, 331: 0}
     total_hours_for_issue = 0
     # get time entries
     r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id),
@@ -346,7 +347,10 @@ print "-" * 75
 for stuple in sorted_remaining:
     story = stuple[1] 
     if story.remaining_sp > 0:
-    	story_eff = story.worked_sp / story.spent_hours
+    	if story.spent_hours > 0:
+            story_eff = story.worked_sp / story.spent_hours
+        else:
+            story_eff = 0
         #print ("%.2f SP (%.2f hrs/%.2f eff)     %s - %s" % (story.remaining_sp, story.getRemainingHours(), story_eff, story.id, story.subject))
         print ("%-10s %-10s %-8s %-8s %s") % (("%.2f" % story.remaining_sp), ("%.2f" % story.getRemainingHours()), ("%.2f" % story_eff), story.id, story.subject)
 # spikes report
