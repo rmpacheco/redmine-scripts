@@ -29,12 +29,13 @@ while nextOffset < total_count:
         issue_data = json.loads(issue_rqst.text)["issue"]
        
         # if the issue does not have children append to our list 
-        if ("children" not in issue_data or len(issue_data["children"]) == 0) : 
-            issues.append(issue)
+        # if ("children" not in issue_data or len(issue_data["children"]) == 0) : 
+        issues.append(issue)
+
     nextOffset += setSize
 
 for issue in issues:
-    # create a subtask that is a copy of issue with a new tracker, status, and parent
+    # # create a subtask that is a copy of issue with a new tracker, status, and parent
     task = {}
     task["project_id"] = str(issue.json["project"]["id"])
     task["tracker_id"] = 16 # task
@@ -42,21 +43,22 @@ for issue in issues:
     task["priority_id"] = issue.json["priority"]["id"]
     task["subject"] = issue.subject
     #if issue.estimated_sp > 0:
-    #	task["estimated_hours"] = round(issue.estimated_sp / .385, 0)
-    #task["estimated_hours"] = 0.0
-    task["description"] = issue.description
-    if "category" in issue.json:
-        task["category_id"] = issue.json["category"]["id"]
-    task["fixed_version_id"] = issue.json["fixed_version"]["id"]
-    task["parent_issue_id"] = issue.id
-    r = requests.post("https://redmine1h.gdsx.com/redmine/issues.json", data=json.dumps({"issue":task}), params={'key': "045c0bc5c92989dea17ba6bb51a1f08986c14714"}, verify=False, headers={'content-type': 'application/json'})
-    if r.status_code != requests.codes.created:
-        print r
-        continue
-    else:
-        print "Subtask created for %d" % (issue.id) 
+    # #	task["estimated_hours"] = round(issue.estimated_sp / .385, 0)
+    # #task["estimated_hours"] = 0.0
+    # task["description"] = issue.description
+    # if "category" in issue.json:
+    #     task["category_id"] = issue.json["category"]["id"]
+    # task["fixed_version_id"] = issue.json["fixed_version"]["id"]
+    # task["parent_issue_id"] = issue.id
+    # r = requests.post("https://redmine1h.gdsx.com/redmine/issues.json", data=json.dumps({"issue":task}), params={'key': "045c0bc5c92989dea17ba6bb51a1f08986c14714"}, verify=False, headers={'content-type': 'application/json'})
+    # if r.status_code != requests.codes.created:
+    #     print r
+    #     continue
+    # else:
+    #     print "Subtask created for %d" % (issue.id) 
     if issue.tracker_id in [12, 13, 14]:  # 12 = feature, 13 = improvement, 14 = bug
         # create a QA task 
+        
         task["priority_id"] = 3 # low
         task["subject"] = 'QA Test "' + issue.subject + "'"
         #task["estimated_hours"] = 0.0 #.5
@@ -66,3 +68,4 @@ for issue in issues:
             print r
         else:
             print "QA task created for %d" % (issue.id)
+  

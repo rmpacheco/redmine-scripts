@@ -14,9 +14,9 @@ class Dev(object):
         self.adjustedTotalSpWorked = 0.0
         self.daysOff = daysOffSoFar
         self.remainingDaysOff = remainingDaysOff
-        self.projectedSp = 0
-        self.busDayEfficiency = 0
-        self.adjustedBusDayEfficiency = 0
+        self.projectedSp = 0.0
+        self.busDayEfficiency = 0.0
+        self.adjustedBusDayEfficiency = 0.0
         self.latestTimeEntryThisSprint = None
 
     def hourEfficiency(self):
@@ -41,13 +41,13 @@ class RmIssue(object):
         self.status_name=""
         self.id = self.json["id"]
 
-        self.estimated_sp = 0
+        self.estimated_sp = 0.0
 
         # self.spent_hours = 0
         # if "spent_hours" in self.json:
         #     self.spent_hours = self.json["spent_hours"]
 
-        self.estimated_hours = 0
+        self.estimated_hours = 0.0
         if "estimated_hours" in self.json:
             self.estimated_hours = self.json["estimated_hours"]
         self.done_ratio = self.json["done_ratio"]

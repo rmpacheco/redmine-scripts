@@ -93,13 +93,13 @@ print "total story points worked so far: %.2f" % (total_worked_sp)
 perc_completed_to_date = float(100) * (total_worked_sp / total_sp)
 print "percentage of sprint completed so far: %.2f%%" % (perc_completed_to_date)
 
-numBDaysInSprint = 9  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+numBDaysInSprint = 10  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = datetime(2016, 6, 20).replace(
+sprint_start_date = datetime(2016, 8, 1).replace(
     tzinfo=tz.gettz('America/Chicago'))  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint_start_date
-bus_hours_per_sprint = 72 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bus_hours_per_sprint = 76 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 halfDay = (bus_hours_per_sprint / numBDaysInSprint) / 2
 # determine number of business hours transpired
 now = datetime.now(pytz.utc)
@@ -135,8 +135,8 @@ time_entries = []
 bentley = Dev(237, "Bentley", 0, 1 )  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 isaac = Dev(212, "Isaac", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #gordon = Dev(128, "Gordon", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-ryan = Dev(12, "Ryan", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-roman = Dev(15, "Roman", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ryan = Dev(12, "Ryan", 0, 1)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+roman = Dev(15, "Roman", 5, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 devanand = Dev(331, "Devanand", 0, 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #mosley = Dev(194, "Mosley", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if wd >= numBDaysInSprint:
@@ -177,10 +177,10 @@ for i in issues:
         for y in xrange(0, len(keys)):
             devPercByHours = devHoursForIssue[keys[y]] / total_hours_for_issue
             if isSpike(i):
-            	spikes[i] = total_hours_for_issue
-            else:
-	            devs[keys[y]].totalSpWorked += i.worked_sp * devPercByHours
-	            devs[keys[y]].adjustedTotalSpWorked += i.adjusted_worked_sp * devPercByHours
+            	spikes[i] = total_hours_for_issue            
+            else:                
+                devs[keys[y]].totalSpWorked += i.worked_sp * devPercByHours
+                devs[keys[y]].adjustedTotalSpWorked += i.adjusted_worked_sp * devPercByHours
             devs[keys[y]].totalHoursWorked += devHoursForIssue[keys[y]]
     else:
         if i.worked_sp > 0:
@@ -361,7 +361,7 @@ print "-" * 75
 print ("%-10s %-10s %-8s %s") % ("SP Value", "Hrs Spent", "RM #", "Title and Status")
 print "-" * 75
 
-for stuple in sorted(stories.items(), key=lambda (k, v): v.spent_hours, reverse=True):
+for stuple in sorted(stories.items(), key=lambda (k, v): v.spent_hours, reverse=False):
 	story = stuple[1]
 	if isSpike(story):
 		#print ("%.2f SP\t(%.2f hrs spent)\t%s - %s (%s)" % (hoursToSP(story.spent_hours), story.spent_hours, story.id, story.subject, story.status_name))
