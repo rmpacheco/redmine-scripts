@@ -18,6 +18,7 @@ class Dev(object):
         self.busDayEfficiency = 0.0
         self.adjustedBusDayEfficiency = 0.0
         self.latestTimeEntryThisSprint = None
+        self.estimatedHoursRemain = 0.0
 
     def hourEfficiency(self):
         ratio = 0
@@ -43,9 +44,13 @@ class RmIssue(object):
 
         self.estimated_sp = 0.0
 
-        # self.spent_hours = 0
-        # if "spent_hours" in self.json:
-        #     self.spent_hours = self.json["spent_hours"]
+        self.spent_hours = 0
+        if "spent_hours" in self.json:
+            self.spent_hours = self.json["spent_hours"]
+
+        self.assigned_id = 0
+        if "assigned_to" in self.json:
+            self.assigned_id = self.json["assigned_to"]["id"]
 
         self.estimated_hours = 0.0
         if "estimated_hours" in self.json:
@@ -75,11 +80,9 @@ class RmIssue(object):
 
         self.worked_sp = (self.estimated_sp * (self.done_ratio / float(100)))
         self.adjusted_worked_sp = self.worked_sp
-        if self.estimated_sp == 8:
-            self.adjusted_worked_sp = self.worked_sp * 1.15
-        if self.estimated_sp == 13:
+        if self.estimated_sp == 5:
             self.adjusted_worked_sp = self.worked_sp * 1.25
-        if self.estimated_sp >= 20:
+        if self.estimated_sp >= 8:
             self.adjusted_worked_sp = self.worked_sp * 1.5
 
         if "status" in self.json:

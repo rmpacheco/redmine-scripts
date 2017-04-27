@@ -27,7 +27,7 @@ def addDevStatsRow(title, devs, attr):
     return row
 
 def getDayFactor(dev):
-    dayFactor = 8
+    dayFactor = 6
     # if dev == mosley:
     #     dayFactor = 4
     return dayFactor
@@ -68,7 +68,7 @@ accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714" #f.read()
 stories = {}
 while nextOffset < total_count:
     # print "nextOffset = %d, total_count = %d" % (nextOffset, total_count)
-    uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=200&limit=100&offset=' + str(nextOffset)
+    uri = 'https://redmine1h.gdsx.com/redmine/projects/morlock/issues.json?query_id=370&limit=100&offset=' + str(nextOffset)
     r = requests.get(uri, params={'key': accessKey}, verify=False)
     data = json.loads(r.text)
     total_count = data["total_count"]
@@ -81,6 +81,7 @@ while nextOffset < total_count:
                 issue.id) + Back.RESET + Fore.RESET)
         done = issue.done_ratio
         # get story points estimate for the issue
+        
         total_sp += issue.estimated_sp
         total_worked_sp += issue.worked_sp
         #remaining_sp[str(issue.id) + " - " + issue.subject + ": " + str(issue.estimated_hours - (issue.estimated_hours * (.01 * issue.done_ratio)))] = issue.estimated_sp-issue.worked_sp
@@ -88,20 +89,22 @@ while nextOffset < total_count:
 
         #print "story: %d, points: %d, done percentage: %f" % (issue.id, issue.estimated_sp, issue.done_ratio)
     nextOffset += setSize
-print "total story points to be worked: %d" % (total_sp)
+print "total story points to be worked: %.2f" % (total_sp)
 print "total story points worked so far: %.2f" % (total_worked_sp)
 perc_completed_to_date = float(100) * (total_worked_sp / total_sp)
 
 
 # from capacity worksheet
 total_hours_budget = 173 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-numBDaysInSprint = 9  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+numBDaysInSprint = 10  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+numBHoursPerDay = 6
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
-sprint_start_date = datetime(2016, 10, 11).replace(
+sprint_start_date = datetime(2017, 1, 9).replace(
     tzinfo=tz.gettz('America/Chicago'))  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # define number of business hours in this sprint_start_date
-bus_hours_per_sprint = 72 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+bus_hours_per_sprint = numBDaysInSprint * numBHoursPerDay # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 halfDay = (bus_hours_per_sprint / numBDaysInSprint) / 2
 # determine number of business hours transpired
 now = datetime.now(pytz.utc)
@@ -110,7 +113,7 @@ if now - sprint_start_date > timedelta(days=11):
 
 wd = workdays(sprint_start_date, now)
 
-current_time = (now - timedelta(hours=8))
+current_time = (now - timedelta(hours=6))
 current_time_as_float = min(current_time.hour + (current_time.minute / float(60)), 12)
 bus_hours_per_day = (bus_hours_per_sprint) / (numBDaysInSprint)
 if wd < numBDaysInSprint:
@@ -118,7 +121,7 @@ if wd < numBDaysInSprint:
 else:
     bus_hours_by_end_of_wd = bus_hours_per_sprint
 
-bus_hours_as_of_now = (((wd - 1) * bus_hours_per_day) + (current_time_as_float) * .33)
+bus_hours_as_of_now = ((wd - 1) * bus_hours_per_day) #+ (current_time_as_float) * .33)
 bus_hours_remaining = bus_hours_per_sprint - bus_hours_as_of_now
 print "business hours remaining: %.2f" % (bus_hours_remaining)
 #print "man hours available: %.2f" % ((total_hours_budget / bus_hours_per_sprint) * bus_hours_remaining) 
@@ -136,24 +139,24 @@ print "story points to complete today for parity: %.2f" % (story_points_behind)
 
 time_entries = []
 #levi = Dev(4, "Levi", 0, 0)
-bentley = Dev(237, "Bentley",0, 0 )  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-isaac = Dev(212, "Isaac", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#trey = Dev(208, "Trey",0, 0 )  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+mattg = Dev(201, "MattG", 0, 1)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #gordon = Dev(128, "Gordon", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-ryan = Dev(12, "Ryan", 4, .5)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#ryan = Dev(12, "Ryan", 0, 5)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #roman = Dev(15, "Roman", 5, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-devanand = Dev(331, "Devanand", 0, 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+caleb = Dev(126, "Caleb", 0, 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #mosley = Dev(194, "Mosley", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-if wd >= numBDaysInSprint:
-    ryan.adjustedTotalSpWorked = 0 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#if wd >= numBDaysInSprint:
+#    ryan.adjustedTotalSpWorked = 0 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-devs = {237: bentley, 212: isaac, 12: ryan, 331: devanand}
+devs = {201: mattg, 126: caleb}
 spikes = {}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
 #devSpForSprint = {237:0, 212:0, 128:0, 12:0, 15:0}
 for i in issues:
     #print "story %d" % i.id
 
-    devHoursForIssue = {237: 0, 212: 0, 12: 0, 331: 0}
+    devHoursForIssue = {201: 0, 126: 0}
     total_hours_for_issue = 0
     # get time entries
     r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id),
@@ -190,6 +193,34 @@ for i in issues:
         if i.worked_sp > 0:
             print Back.YELLOW + Fore.BLACK + "Warning: Story %d claims progress but has 0 spent time recorded" % (
                 i.id) + Back.RESET + Fore.RESET
+
+nextOffset = 0
+total_count = 1
+while nextOffset < total_count:
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    uri = 'https://redmine1h.gdsx.com/redmine/projects/morlock/issues.json?query_id=370&limit=100&offset=' + str(nextOffset)
+    #uri = 'https://redmine1h.gdsx.com/redmine/projects/morlock/issues.json?fixed_version_id=456&tracker_id=16&limit=100&offset=' + str(nextOffset)
+    r = requests.get(uri, params={'key': accessKey}, verify=False)
+    data = json.loads(r.text)
+    total_count = data["total_count"]
+    setSize = len(data["issues"])
+    for x in xrange(0, setSize):
+        issue = RmIssue(data["issues"][x])
+        if issue.assigned_id != 0:
+            #print "issue %d assigned to %s" % (issue.id, devs[issue.assigned_id].name)
+            time_spent = 0
+
+            r2 = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (issue.id),
+                            params={'key': accessKey}, verify=False)
+            data2 = json.loads(r2.text)
+            for x in xrange(0, data2["total_count"]):
+                entry = TimeEntry(data2["time_entries"][x])
+                #print " -- time entry for %s of %.2f hours" % (entry.user_name, entry.hours)
+                time_spent += entry.hours
+
+            #print " -- time spent: %.2f  estimated: %.2f  remain: %.2f" % (time_spent, issue.estimated_hours, issue.estimated_hours - time_spent)
+            devs[issue.assigned_id].estimatedHoursRemain += issue.estimated_hours - time_spent
+    nextOffset += setSize
 
 team_efficiency_index = total_worked_sp / (team_hours_logged - spike_hours)
 print "total hours logged: %.2f" % (team_hours_logged)
@@ -228,18 +259,18 @@ for dkey in devs.keys():
 
 for dkey in devs.keys():
     dev = devs[dkey]
-    dayFactor = 8
+    dayFactor = numBHoursPerDay
     #if dev == mosley:
     #    dayFactor = 4
     #underline += ("%15s") % ('-' * len(dev.name))
     underline += "---------------"
-    dev.busDayEfficiency = (dev.totalSpWorked / (bus_hours_as_of_now - (8 * dev.daysOff)))
+    dev.busDayEfficiency = (dev.totalSpWorked / (bus_hours_as_of_now - (numBHoursPerDay * dev.daysOff)))
     
     #TODO: this is wrong...redo in hours maybe?
-    hoursRemaining = bus_hours_per_sprint - bus_hours_as_of_now - (dayFactor * dev.remainingDaysOff)
+    dev.hoursRemaining = bus_hours_per_sprint - bus_hours_as_of_now - (dayFactor * dev.remainingDaysOff)
     #print (dev.name + " hrs remaining: %.2f" % hoursRemaining)
     # psp = dev.totalSpWorked + (bhEff * hoursRemaining)
-    dev.projectedSp = dev.totalSpWorked + (dev.busDayEfficiency * hoursRemaining)
+    dev.projectedSp = dev.totalSpWorked + (dev.busDayEfficiency * dev.hoursRemaining)
     #dev.projectedSp = (dev.busDayEfficiency * (bus_hours_per_sprint - bus_hours_as_of_now - (dayFactor*dev.remainingDaysOff))) + dev.totalSpWorked
     total_projected_sp += dev.projectedSp
 
@@ -257,7 +288,7 @@ print ""
 
 for i in spikes.keys():
     
-    devHoursForIssue = {237: 0, 212: 0, 12: 0, 331: 0}
+    devHoursForIssue = {208: 0, 201: 0, 126: 0}
     total_hours_for_issue = 0
     # get time entries
     r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id),
@@ -283,7 +314,7 @@ for i in spikes.keys():
 # now that we've sorted out the spike values, figure out the adjusted business day efficiency
 for dkey in devs.keys():
     dev = devs[dkey]
-    dev.adjustedBusDayEfficiency = (dev.adjustedTotalSpWorked / (bus_hours_as_of_now - (8 * dev.daysOff)))
+    dev.adjustedBusDayEfficiency = (dev.adjustedTotalSpWorked / (bus_hours_as_of_now - (numBHoursPerDay * dev.daysOff)))
 
 
 
@@ -335,6 +366,9 @@ print underline
 print bdEfficiencyRaw
 print bdEfficiencyAdj
 print underline 
+print addDevStatsRow("hours remain", devs, "hoursRemaining")
+print addDevStatsRow("work left", devs, "estimatedHoursRemain")
+print underline
 
 # Print out information about each story, sorted from furthest behind to least behind
 #sorted_remaining = sorted(remaining_sp.items(), key=operator.itemgetter(1), reverse=True)
