@@ -63,7 +63,7 @@ issues = []
 
 #TODO: read our access key from file
 #f = open('key.txt', 'r')
-accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714" #f.read()
+accessKey = "yourkey" #f.read()
 #f.close()
 stories = {}
 while nextOffset < total_count:
