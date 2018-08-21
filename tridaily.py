@@ -53,7 +53,7 @@ class RmStory(object):
         return self.estimated_hours - self.spent_hours
 
 
-sprint_id = "532" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+sprint_id = "531" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 nextOffset = 0
 total_count = 1
@@ -71,8 +71,10 @@ accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714" #f.read()
 stories = {}
 while nextOffset < total_count:
     # print "nextOffset = %d, total_count = %d" % (nextOffset, total_count)
-    #uri = 'https://redmine1h.gdsx.com/redmine/projects/morlock/issues.json?query_id=370&limit=100&offset=' + str(nextOffset)
-    uri = 'https://redmine1h.gdsx.com/redmine/projects/morlock/issues.json?utf8=%E2%9C%93&set_filter=1&f%5B%5D=fixed_version_id&op%5Bfixed_version_id%5D=%3D&v%5Bfixed_version_id%5D%5B%5D='+sprint_id+'&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=8&v%5Btracker_id%5D%5B%5D=9&v%5Btracker_id%5D%5B%5D=6&v%5Btracker_id%5D%5B%5D=12&v%5Btracker_id%5D%5B%5D=13&v%5Btracker_id%5D%5B%5D=14&v%5Btracker_id%5D%5B%5D=15&v%5Btracker_id%5D%5B%5D=17&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=done_ratio&c%5B%5D=story_points&c%5B%5D=release&group_by=&limit=100&offset=' + str(nextOffset)
+    #uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=200&limit=100&offset=' + str(nextOffset)
+    uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?utf8=%E2%9C%93&set_filter=1&f%5B%5D=fixed_version_id&op%5Bfixed_version_id%5D=%3D&v%5Bfixed_version_id%5D%5B%5D='+sprint_id+'&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=8&v%5Btracker_id%5D%5B%5D=9&v%5Btracker_id%5D%5B%5D=6&v%5Btracker_id%5D%5B%5D=12&v%5Btracker_id%5D%5B%5D=13&v%5Btracker_id%5D%5B%5D=14&v%5Btracker_id%5D%5B%5D=15&v%5Btracker_id%5D%5B%5D=17&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=done_ratio&c%5B%5D=story_points&c%5B%5D=release&group_by=&limit=100&offset=' + str(nextOffset)
+    #uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json ?utf8=%E2%9C%93&set_filter=1&f%5B%5D=fixed_version_id&op%5Bfixed_version_id%5D=%3D&v%5Bfixed_version_id%5D%5B%5D=' + sprint_id + '&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=8&v%5Btracker_id%5D%5B%5D=9&v%5Btracker_id%5D%5B%5D=6&v%5Btracker_id%5D%5B%5D=12&v%5Btracker_id%5D%5B%5D=13&v%5Btracker_id%5D%5B%5D=14&v%5Btracker_id%5D%5B%5D=15&v%5Btracker_id%5D%5B%5D=17&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=done_ratio&c%5B%5D=story_points&c%5B%5D=release&group_by=&limit=100&offset=' + str(nextOffset)
+   
     r = requests.get(uri, params={'key': accessKey}, verify=False)
     data = json.loads(r.text)
     total_count = data["total_count"]
@@ -100,7 +102,7 @@ perc_completed_to_date = float(100) * (total_worked_sp / total_sp)
 
 # from capacity worksheet
 total_hours_budget = 173 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-numBDaysInSprint = 10  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+numBDaysInSprint = 9.5  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 numBHoursPerDay = 6.5
 # determine the sprint start date
 # TODO: make this a command line arg (or better yet, make it come from redmine)
@@ -143,25 +145,24 @@ print "story points to complete today for parity: %.2f" % (story_points_behind)
 
 time_entries = []
 #levi = Dev(4, "Levi", 0, 0)
-#darshil = Dev(208, "Trey",0, 0 )  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-mattg = Dev(201, "MattG", 5, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+keith = Dev(140, "Keith",0, 0 )  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+isaac = Dev(212, "Isaac", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #gordon = Dev(128, "Gordon", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #ryan = Dev(12, "Ryan", 0, 5)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #roman = Dev(15, "Roman", 5, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-caleb = Dev(126, "Caleb", 5, 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-darshil = Dev(373, "Darshil", 0, 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+devanand = Dev(331, "Devanand", 0, 0) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #mosley = Dev(194, "Mosley", 0, 0)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #if wd >= numBDaysInSprint:
 #    ryan.adjustedTotalSpWorked = 0 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-devs = {201: mattg, 126: caleb, 373: darshil}
+devs = {140: keith, 212: isaac, 331: devanand}
 spikes = {}
 #devNames = {237:"Bentley", 212:"Isaac", 128: "Gordon", 12: "Ryan", 15: "Roman"}
 #devSpForSprint = {237:0, 212:0, 128:0, 12:0, 15:0}
 for i in issues:
     #print "story %d" % i.id
 
-    devHoursForIssue = {201: 0, 126: 0, 373: 0}
+    devHoursForIssue = {140: 0, 212: 0, 331: 0}
     total_hours_for_issue = 0
     # get time entries
     r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id),
@@ -202,9 +203,7 @@ for i in issues:
 nextOffset = 0
 total_count = 1
 while nextOffset < total_count:
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #uri = 'https://redmine1h.gdsx.com/redmine/projects/morlock/issues.json?query_id=370&limit=100&offset=' + str(nextOffset)
-    uri = 'https://redmine1h.gdsx.com/redmine/projects/morlock/issues.json?fixed_version_id=' + sprint_id + '&tracker_id=16&limit=100&offset=' + str(nextOffset)
+    uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?fixed_version_id=' + sprint_id + '&tracker_id=16&limit=100&offset=' + str(nextOffset)
     r = requests.get(uri, params={'key': accessKey}, verify=False)
     data = json.loads(r.text)
     total_count = data["total_count"]
@@ -297,7 +296,7 @@ print ""
 
 for i in spikes.keys():
     
-    devHoursForIssue = {208: 0, 201: 0, 126: 0}
+    devHoursForIssue = {140: 0, 212: 0, 331: 0}
     total_hours_for_issue = 0
     # get time entries
     r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id),
@@ -316,10 +315,9 @@ for i in spikes.keys():
     #print devHoursForIssue
     if total_hours_for_issue > 0:
         for y in xrange(0, len(keys)):
-            if y in keys:
-                devPercByHours = devHoursForIssue[keys[y]] / total_hours_for_issue
-                #devs[keys[y]].totalSpWorked += spike_sp * devPercByHours
-                devs[keys[y]].adjustedTotalSpWorked += spike_sp * devPercByHours
+            devPercByHours = devHoursForIssue[keys[y]] / total_hours_for_issue
+            #devs[keys[y]].totalSpWorked += spike_sp * devPercByHours
+            devs[keys[y]].adjustedTotalSpWorked += spike_sp * devPercByHours
 
 # now that we've sorted out the spike values, figure out the adjusted business day efficiency
 for dkey in devs.keys():

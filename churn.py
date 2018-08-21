@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+
 import json
 import sys
 import os
@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 
 
 def get_json(uri):
-    accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714"
+    accessKey = "c460bd2ac11ee19e084ab30f9c463e1f151cb80e"
 
     r = requests.get(uri, params={'key': accessKey}, verify=False)
     return json.loads(r.text)
@@ -22,7 +22,7 @@ def parse_date_time(dateText):
 def parse_date(dateText):
     return datetime.strptime(dateText, '%Y-%m-%d')
 
-
+redmine_url = "https://msptmcredminepr.rqa.concur.concurtech.org/redmine"
 pairs = {}
 argSize = len(sys.argv)
 min_thresh = float(sys.argv[1])
@@ -36,7 +36,7 @@ print("Sprint ID,Sprint Start,Sprint End,Issue ID,Action,Action DateTime,Action 
       "Looks like churn?")
 for index, sprint_id in enumerate(pairs):
     version_data = get_json(
-        "https://redmine1h.gdsx.com/redmine/versions/" + sprint_id + ".json")
+        redmine_url + "/versions/" + sprint_id + ".json")
 
     createdDate = parse_date_time(version_data["version"]["created_on"])
     end_date = parse_date(version_data["version"]["due_date"])
@@ -46,14 +46,14 @@ for index, sprint_id in enumerate(pairs):
     # items that were closed after the sprint start date.
 
     # unclosed stories created before end of sprint
-    ucbeos_uri = "https://redmine1h.gdsx.com/redmine/projects/" + pairs[sprint_id] + \
+    ucbeos_uri = redmine_url + "/projects/" + pairs[sprint_id] + \
                  "/issues.json?utf8=%E2%9C%93&set_filter=1&f%5B%5D=closed_on&op%5Bclosed_on%5D=%21*&f%5B%5D" \
                  "=created_on&op%5Bcreated_on%5D=%3C%3D&v%5Bcreated_on%5D%5B%5D=" + \
                  version_data["version"]["due_date"] + \
                  "&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D" \
                  "=updated_on&c%5B%5D=fixed_version&c%5B%5D=due_date&c%5B%5D=done_ratio&group_by= "
 
-    cascbs_uri = "https://redmine1h.gdsx.com/redmine/projects/" + pairs[sprint_id] + \
+    cascbs_uri = redmine_url + "/projects/" + pairs[sprint_id] + \
                  "/issues.json?utf8=%E2%9C%93&set_filter=1&f%5B%5D=closed_on&op%5Bclosed_on%5D=%3E%3D&v%5Bclosed_on%5D%5B%5D=" \
                  + datetime.strftime(createdDate, "%Y-%m-%d") + \
                  "&f%5B%5D=created_on&op%5Bcreated_on%5D=%3C%3D&v%5Bcreated_on%5D%5B%5D=" \
@@ -87,7 +87,7 @@ for index, sprint_id in enumerate(pairs):
                     issue_data = cache[issue_id]
                 else:
                     issue_data = get_json(
-                        "https://redmine1h.gdsx.com/redmine/issues/" + str(issue_id) + ".json?include=journals")
+                        redmine_url + "/issues/" + str(issue_id) + ".json?include=journals")
                     cache[issue_id] = issue_data
                     ctext = json.dumps(cache)
                     with open('churn_cache.txt', 'w') as cache_file:

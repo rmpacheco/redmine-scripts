@@ -41,9 +41,11 @@ class RmIssue(object):
         self.status = 0
         self.status_name=""
         self.id = self.json["id"]
-
+        self.regression = None
         self.estimated_sp = 0.0
-
+        self.closed_on = None
+        self.updated_on = None
+        self.created_on = None
         self.spent_hours = 0
         if "spent_hours" in self.json:
             self.spent_hours = self.json["spent_hours"]
@@ -56,13 +58,19 @@ class RmIssue(object):
         if "estimated_hours" in self.json:
             self.estimated_hours = self.json["estimated_hours"]
         self.done_ratio = self.json["done_ratio"]
-        #custom_fields = self.json["custom_fields"]
+        custom_fields = self.json["custom_fields"]
         self.tracker_id = self.json["tracker"]["id"]
         self.subject = self.json["subject"]
         if "description" in self.json:
             self.description = self.json["description"]
         else:
             self.description = ""
+        if "closed_on" in self.json:
+            self.closed_on = datetime.strptime(self.json["closed_on"], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=tz.gettz('UTC'))
+        if "updated_on" in self.json:
+            self.updated_on = datetime.strptime(self.json["updated_on"], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=tz.gettz('UTC'))
+        if "created_on" in self.json:
+            self.created_on = datetime.strptime(self.json["created_on"], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=tz.gettz('UTC'))
         if "parent" in self.json:
             self.parent_id = self.json["parent"]["id"]
         else:
@@ -71,13 +79,11 @@ class RmIssue(object):
         if "story_points" in self.json:
             if self.json["story_points"] is not None and self.json["story_points"] != "":
                 self.estimated_sp = float(self.json["story_points"])
-        # for i in xrange(0, len(custom_fields)):
-        #     cf = custom_fields[i]
-        #     if cf["name"] == "Story Points":
-        #         if cf["value"] != '':
-        #             self.estimated_sp = int(cf["value"])
-        #             break
-
+        for i in xrange(0, len(custom_fields)):
+            cf = custom_fields[i]
+            if cf["name"] == "Regression?":
+                self.regression=cf["value"] == 'Regression'
+                
         self.worked_sp = (self.estimated_sp * (self.done_ratio / float(100)))
         self.adjusted_worked_sp = self.worked_sp
         if self.estimated_sp == 5:
