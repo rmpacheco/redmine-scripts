@@ -8,13 +8,13 @@ issues = []
 
 # read our access key
 f = open('key.txt', 'r')
-accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714"#f.read()
+accessKey = "your key"#f.read()
 f.close()
 
 while nextOffset < total_count:
     uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=200&limit=100&offset=' + str(nextOffset)
     
-    r = requests.get(uri, params={'key': "045c0bc5c92989dea17ba6bb51a1f08986c14714"}, verify=False)
+    r = requests.get(uri, params={'key': "your key"}, verify=False)
     #print r.text
     data = json.loads(r.text)
     

@@ -10,7 +10,7 @@ requests.packages.urllib3.disable_warnings()
 baseUris = ['https://redmine1h.gdsx.com/redmine/projects/morlock/issues.json?query_id=369', 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?query_id=201' ]
 # read our access key
 #f = open('key.txt', 'r')
-accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714" #f.read()
+accessKey = "your key" #f.read()
 #f.close()
 for uriIndex in xrange(0, len(baseUris)):
     nextOffset = 0

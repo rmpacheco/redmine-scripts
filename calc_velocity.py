@@ -52,7 +52,7 @@ else:
 
     # read our access key
     
-    accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714" 
+    accessKey = "yourkey" 
     
 
     version = sys.argv[1]

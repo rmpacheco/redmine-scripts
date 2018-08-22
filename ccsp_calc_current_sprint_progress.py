@@ -63,7 +63,7 @@ issues = []
 
 #TODO: read our access key from file
 #f = open('key.txt', 'r')
-accessKey = "045c0bc5c92989dea17ba6bb51a1f08986c14714" #f.read()
+accessKey = "yourkey" #f.read()
 #f.close()
 stories = {}
 while nextOffset < total_count:
@@ -367,3 +367,4 @@ for stuple in sorted(stories.items(), key=lambda (k, v): v.spent_hours, reverse=
 		#print ("%.2f SP\t(%.2f hrs spent)\t%s - %s (%s)" % (hoursToSP(story.spent_hours), story.spent_hours, story.id, story.subject, story.status_name))
 		print ("%-10s %-10s %-8s %s (%s)") % (("%.2f" % hoursToSP(story.spent_hours)), ("%.2f" % story.spent_hours), story.id, story.subject, story.status_name)
 		
+

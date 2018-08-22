@@ -33,10 +33,10 @@ def getDayFactor(dev):
     return dayFactor
 
 def hoursToSP(hours):
-	return hours*team_efficiency_index
+    return hours*team_efficiency_index
 
 def isSpike(story):
-	return story.estimated_sp == 0 and story.status != 1
+    return story.estimated_sp == 0 and story.status != 1
 
 class RmStory(object):
     def __init__(self, issue):
@@ -171,7 +171,7 @@ for i in issues:
         entry = TimeEntry(data["time_entries"][x])
         team_hours_logged += entry.hours
         if isSpike(i):
-        	spike_hours += entry.hours
+            spike_hours += entry.hours
   
         stories[i.id].spent_hours += entry.hours
         if entry.user_id in devs:
@@ -189,7 +189,7 @@ for i in issues:
         for y in xrange(0, len(keys)):
             devPercByHours = devHoursForIssue[keys[y]] / total_hours_for_issue
             if isSpike(i):
-            	spikes[i] = total_hours_for_issue            
+                spikes[i] = total_hours_for_issue            
             else:                
                 devs[keys[y]].totalSpWorked += i.worked_sp * devPercByHours
                 devs[keys[y]].adjustedTotalSpWorked += i.adjusted_worked_sp * devPercByHours
@@ -242,7 +242,7 @@ total_projected_sp = 0
 #     #hours_ahead_behind = (bus_hours_as_of_now / (perc_completed_to_date * .01)) - bus_hours_per_sprint
 #     for story in stories.items():
 #         task_hours_remaining += story[1].getRemainingHours()
-# 	#TODO : this is all wrong.  needs to take into account how many hours each dev is available for rest of sprint    
+#   #TODO : this is all wrong.  needs to take into account how many hours each dev is available for rest of sprint    
 #     hours_ahead_behind = (bus_hours_per_sprint - bus_hours_as_of_now ) - task_hours_remaining
 # else:
 #     hours_ahead_behind = bus_hours_per_sprint
@@ -398,7 +398,7 @@ task_hours_remaining = 0
 for stuple in sorted_remaining:
     story = stuple[1] 
     if story.remaining_sp > 0:
-    	if story.spent_hours > 0:
+        if story.spent_hours > 0:
             story_eff = story.worked_sp / story.spent_hours
         else:
             story_eff = 0
@@ -417,7 +417,6 @@ print ("%-10s %-8s %s") % ("Hrs Spent", "RM #", "Title and Status")
 print "-" * 75
 
 for stuple in sorted(stories.items(), key=lambda (k, v): v.spent_hours, reverse=False):
-	story = stuple[1]
-	if isSpike(story):
-		print ("%-10s %-8s %s (%s)") % (("%.2f" % story.spent_hours), story.id, story.subject, story.status_name)
-		
+    story = stuple[1]
+    if isSpike(story):
+        print ("%-10s %-8s %s (%s)") % (("%.2f" % story.spent_hours), story.id, story.subject, story.status_name)
