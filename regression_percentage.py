@@ -34,7 +34,7 @@ issues = []
 
 #TODO: read our access key from file
 #f = open('key.txt', 'r')
-accessKey = "c460bd2ac11ee19e084ab30f9c463e1f151cb80e" #f.read()
+accessKey = "your access key" #f.read()
 #f.close()
 stories = {}
 hoursByDow={}
