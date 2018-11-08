@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 
 
 def get_json(uri):
-    accessKey = "c460bd2ac11ee19e084ab30f9c463e1f151cb80e"
+    accessKey = "youraccesskeyhere"
 
     r = requests.get(uri, params={'key': accessKey}, verify=False)
     return json.loads(r.text)
