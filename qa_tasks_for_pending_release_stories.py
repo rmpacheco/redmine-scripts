@@ -7,13 +7,19 @@ from datetime import datetime, timedelta
 
 requests.packages.urllib3.disable_warnings()
 
-
 def get_json(uri):
-    accessKey = "your access key"
+    #accessKey = "c460bd2ac11ee19e084ab30f9c463e1f151cb80e"
+    if not os.path.exists("access_key.txt"):
+        print("Error: Unable to find 'access_key.txt'")
+        exit(1)
+    with open("access_key.txt", 'r') as keyfile:
+        key = keyfile.read().replace('\n', '')
 
-    r = requests.get(uri, params={'key': accessKey}, verify=False)
+    r = requests.get(uri, params={'key': key}, verify=False)
     return json.loads(r.text)
 
+def get_issue(issue_id):
+    return get_json(redmine_url + "/issues/" + str(issue_id) + ".json?include=relations")
 
 def parse_date_time(dateText):
     return datetime.strptime(dateText, '%Y-%m-%dT%H:%M:%SZ')
@@ -34,32 +40,7 @@ release_stories_uri = redmine_url + "/projects/compleat-root/issues.json?utf8=%E
                             "%5D%5B%5D=16&v%5Btracker_id%5D%5B%5D=19&v%5Btracker_id%5D%5B%5D=20&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=status" + \
                             "&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=fixed_version&c%5B%5D=" + \
                             "due_date&c%5B%5D=done_ratio&group_by="
-#print release_stories_uri
-
 uris = [release_stories_uri]
-cache = {}
-cache_file_name = "qatfprs_cache.txt"
-
-def get_issue(issue_id):
-    issue_data = None
-    if issue_id in cache:
-        issue_data = cache[issue_id]
-    else:
-        issue_data = get_json(
-            redmine_url + "/issues/" + str(issue_id) + ".json?include=relations")
-        cache[issue_id] = issue_data
-        ctext = json.dumps(cache)
-        with open(cache_file_name, 'w') as cache_file:
-            cache_file.write(ctext)
-    return issue_data
-
-
-if os.path.exists(cache_file_name):
-    with open(cache_file_name, 'r') as cache_file:
-        ctext = cache_file.read().replace('\n', '')
-        if len(ctext) > 0:
-            cache = json.loads(ctext)
-
 for uri_index in range(0, len(uris)):
     next_offset = 0
     total_count = 1
@@ -75,20 +56,19 @@ for uri_index in range(0, len(uris)):
             issue_id = str(issue["id"])
             issue_status = str(issue["status"]["name"])
             issue_data = get_issue(issue_id)
-            # grab the relations
             rel_id = None
             if "relations" in issue_data["issue"]:
                 relations = issue_data["issue"]["relations"]
                 relations_size = len(relations)
-                #print str(relations_size) + " found for Issue " + issue_id
+                
                 found_at_least_one = False
                 for y in range(0, relations_size):
                     relation = relations[y]
                     rel_id = str(relation["issue_id"])
-                    #print "Found related issue " + rel_id + " for issue " + issue_id
+                
                     if rel_id == issue_id:
-                        #print "should use issue to id"
                         rel_id = str(relation["issue_to_id"])
+
                     # pull up the relation data
                     rel_data = get_issue(rel_id)["issue"]
                     related_release_id = None
@@ -101,11 +81,9 @@ for uri_index in range(0, len(uris)):
                         release_set_and_matched = False
                         if release_id == related_release_id:
                             release_set_and_matched = True
-                        
-                        print str(issue_id) + "," + issue_status + "," + str(rel_id) + "," +  str(release_set_and_matched)                   
+                        print (str(issue_id) + "," + issue_status + "," + str(rel_id) + "," +  str(release_set_and_matched))
                 if not found_at_least_one:
-                    print str(issue_id) + "," + issue_status + ",,False"
+                    print (str(issue_id) + "," + issue_status + ",,False")
             else:
-                #print "relations not found for " + issue_id
-                print str(issue_id) + "," + issue_status + ",,False"
+                print (str(issue_id) + "," + issue_status + ",,False")
         next_offset += set_size
