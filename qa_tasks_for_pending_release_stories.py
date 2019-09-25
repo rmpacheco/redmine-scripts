@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 requests.packages.urllib3.disable_warnings()
 
 def get_json(uri):
-    #accessKey = "c460bd2ac11ee19e084ab30f9c463e1f151cb80e"
     if not os.path.exists("access_key.txt"):
         print("Error: Unable to find 'access_key.txt'")
         exit(1)
