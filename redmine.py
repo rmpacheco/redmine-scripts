@@ -1,9 +1,14 @@
-# from colorama import init
-# from colorama import Fore, Back, Style
 from datetime import datetime
 from dateutil import tz
+import json
+import os
+import requests
+import math
 
-# init() #init colorama
+from dateutil import tz
+
+requests.packages.urllib3.disable_warnings()
+base_url = "https://msptmcredminepr.rqa.concur.concurtech.org/redmine"
 
 class Dev(object):
     def __init__(self, id, name, daysOffSoFar=0, remainingDaysOff=0):
@@ -94,3 +99,67 @@ class RmIssue(object):
         if "status" in self.json:
             self.status = self.json["status"]["id"]
             self.status_name = self.json["status"]["name"]
+      
+class RmVersion(object):
+    def __init__(self, version_json):
+        self.id = version_json["id"]
+        self.name = version_json["name"]
+        if "due_date" in version_json:
+            self.due_date = datetime.strptime(version_json["due_date"], '%Y-%m-%d')
+            # print (str(self.id) + "- " + self.name + " - " + str(self.due_date))
+        else:
+            self.due_date = datetime.min
+        self.issues = []
+
+    def total_story_points(self):
+         return sum([i.estimated_sp for i in self.issues])
+
+    def median_story_points(self):
+        lst = [x.estimated_sp for x in self.issues]
+        n = len(lst)
+        s = sorted(lst)
+        return (sum(s[n//2-1:n//2+1])/2.0, s[n//2])[n % 2] if n else None
+
+    def standard_deviation_points(self):
+        mean = self.total_story_points() / len(self.issues)
+        diffs = [math.pow((i.estimated_sp-mean),2) for i in self.issues]
+        mean2 = sum(diffs) / len(diffs)
+        return math.sqrt(mean2)
+
+
+def get_sprint_versions(beginDate, endDate):
+    versions = []
+    data = get_json(base_url + "/projects/tla/versions.json")
+    size = len(data["versions"])
+    for x in range(0, size):
+        version = RmVersion(data["versions"][x])
+        if  version.due_date >= beginDate and version.due_date <= endDate and "sprint" in str.lower(version.name):
+            versions.append(version)
+    return versions
+
+def get_json(uri):
+    if not os.path.exists("access_key.txt"):
+        print("Error: Unable to find 'access_key.txt'")
+        exit(1)
+    with open("access_key.txt", 'r') as keyfile:
+        key = keyfile.read().replace('\n', '')
+
+    r = requests.get(uri, params={'key': key}, verify=False)
+    return json.loads(r.text)
+
+def get_issues(redmine_version):
+    nextOffset = 0
+    total_count = 1
+    issues = []
+    while nextOffset < total_count:
+        uri = base_url + '/projects/tla/issues.json?set_filter=1&f%5B%5D=fixed_version_id&op%5Bfixed_version_id%5D=%3D&v%5Bfixed_version_id%5D%5B%5D=' + str(redmine_version) + '&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=6&v%5Btracker_id%5D%5B%5D=12&v%5Btracker_id%5D%5B%5D=13&v%5Btracker_id%5D%5B%5D=14&v%5Btracker_id%5D%5B%5D=15&v%5Btracker_id%5D%5B%5D=17&f%5B%5D=status_id&op%5Bstatus_id%5D=%21&v%5Bstatus_id%5D%5B%5D=6&v%5Bstatus_id%5D%5B%5D=22&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=category&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=done_ratio&c%5B%5D=cf_9&c%5B%5D=cf_17&group_by=&limit=100&offset=' + str(
+            nextOffset)
+        # print (uri)
+        data = get_json(uri)
+        total_count = data["total_count"]
+        setSize = len(data["issues"])
+        for x in range(0, setSize):
+            issue = RmIssue(data["issues"][x])
+            issues.append(issue)
+        nextOffset += setSize
+    return issues
