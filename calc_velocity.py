@@ -1,6 +1,6 @@
 import json
 import sys
-
+import os
 import requests
 
 from redmine import *
@@ -46,14 +46,21 @@ class RmStory(object):
     def getRemainingHours(self):
         return self.estimated_hours - self.spent_hours
 
+def get_json(uri):
+    if not os.path.exists("access_key.txt"):
+        print("Error: Unable to find 'access_key.txt'")
+        exit(1)
+    with open("access_key.txt", 'r') as keyfile:
+        key = keyfile.read().replace('\n', '')
+
+    r = requests.get(uri, params={'key': key}, verify=False)
+    return json.loads(r.text)
+
 if len(sys.argv) <= 1:
     print "Sprint ID required as command line arg"
 else:
 
     # read our access key
-    
-    accessKey = "yourkey" 
-    
 
     version = sys.argv[1]
 
@@ -62,10 +69,11 @@ else:
     stories = {}
     issues = []
     while nextOffset < total_count:
-        uri = 'https://redmine1h.gdsx.com/redmine/projects/tla/issues.json?set_filter=1&f%5B%5D=fixed_version_id&op%5Bfixed_version_id%5D=%3D&v%5Bfixed_version_id%5D%5B%5D=' + version + '&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=6&v%5Btracker_id%5D%5B%5D=12&v%5Btracker_id%5D%5B%5D=13&v%5Btracker_id%5D%5B%5D=14&v%5Btracker_id%5D%5B%5D=15&v%5Btracker_id%5D%5B%5D=17&f%5B%5D=status_id&op%5Bstatus_id%5D=%21&v%5Bstatus_id%5D%5B%5D=6&v%5Bstatus_id%5D%5B%5D=22&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=category&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=done_ratio&c%5B%5D=cf_9&c%5B%5D=cf_17&group_by=&limit=100&offset=' + str(
+        base_url = "https://msptmcredminepr.rqa.concur.concurtech.org/redmine"
+        uri = base_url + '/projects/tla/issues.json?set_filter=1&f%5B%5D=fixed_version_id&op%5Bfixed_version_id%5D=%3D&v%5Bfixed_version_id%5D%5B%5D=' + version + '&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=6&v%5Btracker_id%5D%5B%5D=12&v%5Btracker_id%5D%5B%5D=13&v%5Btracker_id%5D%5B%5D=14&v%5Btracker_id%5D%5B%5D=15&v%5Btracker_id%5D%5B%5D=17&f%5B%5D=status_id&op%5Bstatus_id%5D=%21&v%5Bstatus_id%5D%5B%5D=6&v%5Bstatus_id%5D%5B%5D=22&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=category&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=done_ratio&c%5B%5D=cf_9&c%5B%5D=cf_17&group_by=&limit=100&offset=' + str(
             nextOffset)
-        r = requests.get(uri, params={'key': accessKey}, verify=False)
-        data = json.loads(r.text)
+
+        data = get_json(uri)
         total_count = data["total_count"]
         setSize = len(data["issues"])
         for x in xrange(0, setSize):
@@ -107,10 +115,8 @@ else:
         devHoursForIssue = {237: 0, 212: 0, 12: 0, 15: 0, 331: 0}
         total_hours_for_issue = 0
         # get time entries
-        r = requests.get('https://redmine1h.gdsx.com/redmine/issues/%d/time_entries.json?limit=50' % (i.id),
-                         params={'key': accessKey}, verify=False)
-        data = json.loads(r.text)
-
+        data = get_json(base_url + '/issues/%d/time_entries.json?limit=50' % (i.id))
+    
         #print data["total_count"]
         for x in xrange(0, data["total_count"]):
 

@@ -1,9 +1,9 @@
-from colorama import init
-from colorama import Fore, Back, Style
+# from colorama import init
+# from colorama import Fore, Back, Style
 from datetime import datetime
 from dateutil import tz
 
-init() #init colorama
+# init() #init colorama
 
 class Dev(object):
     def __init__(self, id, name, daysOffSoFar=0, remainingDaysOff=0):
@@ -79,7 +79,7 @@ class RmIssue(object):
         if "story_points" in self.json:
             if self.json["story_points"] is not None and self.json["story_points"] != "":
                 self.estimated_sp = float(self.json["story_points"])
-        for i in xrange(0, len(custom_fields)):
+        for i in range(0, len(custom_fields)):
             cf = custom_fields[i]
             if cf["name"] == "Regression?":
                 self.regression=cf["value"] == 'Regression'
