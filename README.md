@@ -16,6 +16,8 @@ The `redmine.py` module depends on the [Requests library](https://requests.readt
 
 ## Getting Velocity Metrics
 
+This script will get you the average number of story points in all sprints between a given date range, as well as the median story points per story and the standard deviation of story points per story.  That said, please note that this script does not yet distinguish between sprints that are completed and sprints that are planned/in-progress.  As a result, if you choose a date range that includes sprints that are not yet finished, your stats output will include data that does not accurately reflect actual team velocity. Therefore, you should use date ranges that strictly cover sprints that are completed (the script will go by the sprint's "due date" value in Redmine, so as long as you use an end date that excludes unfinished sprints by due date, you should be fine).
+
 ### Usage
 
 `python3 velocity_metrics.py` [begin date] [end date]
