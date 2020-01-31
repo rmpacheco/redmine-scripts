@@ -2,6 +2,7 @@
 *.pyc
 *.csv
 *.user
+__pycache__
 .vscode
 venv
 access_key.txt
