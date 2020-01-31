@@ -1,8 +1,14 @@
-from datetime import datetime
 import redmine
+import sys
+from datetime import datetime
 
-# TODO: get start and end dates as input from command line args
-beginDate, endDate = datetime(2019, 11, 1), datetime(2020, 1, 1)
+argSize = len(sys.argv)
+if argSize < 3:
+    print ("Please provide two arguments: begin date and end date (M/D/YYYY)")
+    exit(-1)
+
+beginDate = datetime.strptime(sys.argv[1], '%m/%d/%Y')
+endDate = datetime.strptime(sys.argv[2], '%m/%d/%Y')
 versions = redmine.get_sprint_versions(beginDate, endDate)
 
 for v in range(0, len(versions)):
